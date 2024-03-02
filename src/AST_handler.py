@@ -1,9 +1,8 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum, unique, auto
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Union, Optional
 from colorama import Fore, Style
-from typing import Union, Optional
 
 
 @unique
