@@ -14,7 +14,7 @@ from src.utils.meta_info_utils import latest_verison_substring
 
 
 class FileHandler:
-    def __init__(self, repo_path, file_path):
+    def __init__(self, repo_path : str, file_path : Optional[str]):
         self.file_path = file_path
         self.repo_path = repo_path
         self.project_hierarchy = os.path.join(

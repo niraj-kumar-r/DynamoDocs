@@ -1,13 +1,16 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum, unique, auto
-from typing import Any, Dict, List, Union, Optional
+from typing import Any, Dict, List, Optional
 from colorama import Fore, Style
+from tqdm import tqdm
 import jedi
 import os
+import json
 
 from src.config import CONFIG
 from src.mylogger import logger
+from src.file_handler import FileHandler
 
 
 @unique
@@ -67,8 +70,12 @@ class DocItem:
     parent: Optional[DocItem] = None
     depth: int = 0
     tree_path: List[DocItem] = field(default_factory=list)
-    references_from_this: List[DocItem] = field(default_factory=list)
-    references_to_this: List[DocItem] = field(default_factory=list)
+    reference_who: List[DocItem] = field(default_factory=list)
+    who_reference_me: List[DocItem] = field(default_factory=list)
+    special_reference_type: List[bool] = field(default_factory=list)
+
+    reference_who_name_list: List[str] = field(default_factory=list)
+    who_reference_me_name_list: List[str] = field(default_factory=list)
 
     has_task: bool = False
 
@@ -338,3 +345,139 @@ class MetaInfo:
         abs_path = CONFIG["repo_path"]
         print(f"{Fore.LIGHTRED_EX}Initializing Metainfo: 
               {Style.RESET_ALL} from {abs_path}")
+        file_handler = FileHandler(abs_path, None)
+        repo_structure = file_handler.generate_overall_structure(
+            file_path_reflections, jump_files)
+        metainfo = MetaInfo.from_project_hierarchy_json(repo_structure)
+        metainfo.repo_path = abs_path
+        metainfo.fake_file_reflection = file_path_reflections
+        metainfo.jump_files = jump_files
+        return metainfo
+    
+    @staticmethod
+    def from_project_hierarchy_path(repo_path: str) -> MetaInfo:
+        project_hierarchy_json_path = os.path.join(
+            repo_path, "project_hierarchy.json")
+        logger.info(f"parsing from {project_hierarchy_json_path}")
+        if not os.path.exists(project_hierarchy_json_path):
+            raise NotImplementedError("Invalid operation detected")
+
+        with open(project_hierarchy_json_path, "r", encoding="utf-8") as reader:
+            project_hierarchy_json = json.load(reader)
+        return MetaInfo.from_project_hierarchy_json(project_hierarchy_json)
+    
+    @staticmethod
+    def from_project_hierarchy_json(project_hierarchy_json) -> MetaInfo:
+        target_meta_info = MetaInfo(
+            target_repo_hierarchical_tree=DocItem(
+                item_type=DocItemType._repo,
+                obj_name="full_repo",
+            )
+        )
+
+        for file_name, file_content in tqdm(project_hierarchy_json.items(), desc="parsing parent relationship"):
+            if not os.path.exists(os.path.join(CONFIG["repo_path"], file_name)):
+                logger.info(f"deleted content: {file_name}")
+                continue
+            elif os.path.getsize(os.path.join(CONFIG["repo_path"], file_name)) == 0:
+                logger.info(f"blank content: {file_name}")
+                continue
+
+            recursive_file_path = file_name.split("/")
+            pos = 0
+            now_structure = target_meta_info.target_repo_hierarchical_tree
+            while pos < len(recursive_file_path) - 1:
+                if recursive_file_path[pos] not in now_structure.children.keys():
+                    now_structure.children[recursive_file_path[pos]] = DocItem(
+                        item_type=DocItemType._dir,
+                        md_content="",
+                        obj_name=recursive_file_path[pos],
+                    )
+                    now_structure.children[
+                        recursive_file_path[pos]
+                    ].parent = now_structure
+                now_structure = now_structure.children[recursive_file_path[pos]]
+                pos += 1
+            if recursive_file_path[-1] not in now_structure.children.keys():
+                now_structure.children[recursive_file_path[pos]] = DocItem(
+                    item_type=DocItemType._file,
+                    obj_name=recursive_file_path[-1],
+                )
+                now_structure.children[recursive_file_path[pos]
+                                       ].parent = now_structure
+
+            assert type(file_content) == list
+            file_item = target_meta_info.target_repo_hierarchical_tree.find(
+                recursive_file_path)
+            assert file_item.item_type == DocItemType._file
+
+            obj_item_list: List[DocItem] = []
+            for value in file_content:
+                obj_doc_item = DocItem(
+                    obj_name=value["name"],
+                    content=value,
+                    md_content=value["md_content"],
+                    code_start_line=value["code_start_line"],
+                    code_end_line=value["code_end_line"],
+                )
+                if "item_status" in value.keys():
+                    obj_doc_item.item_status = DocItemStatus[value["item_status"]]
+                if "reference_who" in value.keys():
+                    obj_doc_item.reference_who_name_list = value["reference_who"]
+                if "special_reference_type" in value.keys():
+                    obj_doc_item.special_reference_type = value["special_reference_type"]
+                if "who_reference_me" in value.keys():
+                    obj_doc_item.who_reference_me_name_list = value["who_reference_me"]
+                obj_item_list.append(obj_doc_item)
+
+            for item in obj_item_list:
+                potential_father = None
+                for other_item in obj_item_list:
+                    def code_contain(item: DocItem, other_item:DocItem) -> bool:
+                        if other_item.code_end_line == item.code_end_line and other_item.code_start_line == item.code_start_line:
+                            return False
+                        if other_item.code_end_line < item.code_end_line or other_item.code_start_line > item.code_start_line:
+                            return False
+                        return True
+                    if code_contain(item, other_item):
+                        if potential_father == None or ((other_item.code_end_line - other_item.code_start_line) < (potential_father.code_end_line - potential_father.code_start_line)):
+                            potential_father = other_item
+
+                if potential_father == None:
+                    potential_father = file_item
+                item.parent = potential_father
+                child_name = item.item_name
+                if child_name in potential_father.children.keys():
+                    now_name_id = 0
+                    while (child_name + f"_{now_name_id}") in potential_father.children.keys():
+                        now_name_id += 1
+                    child_name = child_name + f"_{now_name_id}"
+                    logger.warning(f"Name duplicate in {file_item.get_full_name()}: rename to {
+                                   item.item_name}->{child_name}")
+                potential_father.children[child_name] = item
+
+            def change_items(now_item: DocItem):
+                if now_item.item_type != DocItemType._file:
+                    if now_item.content["type"] == "ClassDef":
+                        now_item.item_type = DocItemType._class
+                    elif now_item.content["type"] == "FunctionDef":
+                        now_item.item_type = DocItemType._function
+                        if now_item.parent.item_type == DocItemType._class:
+                            now_item.item_type = DocItemType._class_method
+                        elif now_item.parent.item_type in [DocItemType._function, DocItemType._sub_function]:
+                            now_item.item_type = DocItemType._sub_function
+                for _, child in now_item.children.items():
+                    change_items(child)
+            change_items(file_item)
+
+        target_meta_info.target_repo_hierarchical_tree.parse_tree_path(now_path=[])
+        target_meta_info.target_repo_hierarchical_tree.check_depth()
+        return target_meta_info
+    
+
+
+if __name__ == "__main__":
+    repo_path = "some_repo_path"
+    meta = MetaInfo.from_project_hierarchy_json(repo_path)
+    meta.target_repo_hierarchical_tree.print_recursive()
+    # topology_list = meta.get_topology()
