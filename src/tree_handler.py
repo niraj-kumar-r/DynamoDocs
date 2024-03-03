@@ -3,6 +3,11 @@ from dataclasses import dataclass, field
 from enum import Enum, unique, auto
 from typing import Any, Dict, List, Union, Optional
 from colorama import Fore, Style
+import jedi
+import os
+
+from src.config import CONFIG
+from src.mylogger import logger
 
 
 @unique
@@ -16,7 +21,7 @@ class DocItemType(Enum):
     _sub_function = auto()
     _global_var = auto()
 
-    def to_str(self):
+    def to_str(self) -> str:
         if self == DocItemType._class:
             return "ClassDef"
         elif self == DocItemType._class_method or self == DocItemType._function or self == DocItemType._sub_function:
@@ -25,7 +30,7 @@ class DocItemType(Enum):
         # assert False, f"{self.name}"
         return self.name
 
-    def print_self(self):
+    def print_self(self) -> None:
         change_color = Fore.WHITE
         if self == DocItemType._dir:
             change_color = Fore.GREEN
@@ -68,7 +73,7 @@ class DocItem:
     has_task: bool = False
 
     @staticmethod
-    def check_and_return_ancestor(doc1: DocItem, doc2: DocItem) -> Union[DocItem, None]:
+    def check_and_return_ancestor(doc1: DocItem, doc2: DocItem) -> Optional[DocItem]:
         """Check and return the common ancestor between two DocItems.
 
         This function checks if either `doc1` is an ancestor of `doc2` or vice versa.
@@ -79,7 +84,7 @@ class DocItem:
             doc2 (DocItem): The second DocItem to check.
 
         Returns:
-            Union[DocItem, None]: The common ancestor DocItem if found, otherwise None.
+            Optional[Docitem]: The common ancestor DocItem if found, otherwise None.
         """
         if doc1 in doc2.tree_path:
             return doc1
@@ -206,7 +211,7 @@ class DocItem:
         name_list = name_list[1:]
         return "/".join(name_list)
 
-    def get_file_name(self):
+    def get_file_name(self) -> str:
         """Returns the file name of the doc_item.
 
         Returns:
@@ -249,7 +254,7 @@ class DocItem:
             pos += 1
         return now
 
-    def print_recursive(self, indent=0, print_content=False, diff_status=False, ignore_list=[]):
+    def print_recursive(self, indent: int = 0, print_content: bool = False, diff_status: bool = False, ignore_list: List[str] = []) -> None:
         def print_indent(indent=0):
             if indent == 0:
                 return ""
@@ -272,3 +277,64 @@ class DocItem:
                 continue
             child.print_recursive(indent=indent + 1, print_content=print_content,
                                   diff_status=diff_status, ignore_list=ignore_list)
+
+
+def find_all_referencer(repo_path: str, variable_name, file_path: str, line_number, column_number, in_file_only: bool = False):
+    """
+    Find all references to a variable in a given repository.
+
+    Args:
+        repo_path (str): The path to the repository.
+        variable_name: The name of the variable to find references for.
+        file_path (str): The path to the file where the variable is defined.
+        line_number: The line number where the variable is defined.
+        column_number: The column number where the variable is defined.
+        in_file_only (bool, optional): If True, only search for references within the same file. Defaults to False.
+
+    Returns:
+        list: A list of tuples containing the module path, line number, and column number of each reference.
+    """
+    file_path = os.path.relpath(file_path, repo_path)
+    try:
+        script = jedi.Script(path=os.path.join(repo_path, file_path))
+        if in_file_only:
+            references = script.get_references(
+                line=line_number, column=column_number, scope="file")
+        else:
+            references = script.get_references(
+                line=line_number, column=column_number)
+        variable_references = [ref for ref in references if ref.name == variable_name
+                               and not (ref.line == line_number and ref.column == column_number)]
+
+        return [
+            (os.path.relpath(ref.module_path, repo_path), ref.line, ref.column)
+            for ref in variable_references
+        ]
+
+    except Exception as e:
+        logger.error(f"Error in finding references: {e}")
+        logger.info(
+            f"Parameters : {repo_path}, {variable_name}, {file_path}, {
+                line_number}, {column_number}, {in_file_only}"
+        )
+        return []
+
+
+@dataclass
+class MetaInfo:
+    repo_path: str = ""
+    document_version: str = (
+        ""
+    )
+    target_repo_hierarchical_tree: DocItem = field(default_factory=DocItem)
+    white_list: Any[List] = None
+    fake_file_reflection: Dict[str, str] = field(default_factory=dict)
+    jump_files: List[str] = field(default_factory=list)
+    deleted_items_from_older_meta: List[List] = field(default_factory=list)
+    in_generation_process: bool = False
+
+    @staticmethod
+    def init_meta_info(file_path_reflections: Dict[str, str], jump_files: List[str]) -> MetaInfo:
+        abs_path = CONFIG["repo_path"]
+        print(f"{Fore.LIGHTRED_EX}Initializing Metainfo: 
+              {Style.RESET_ALL} from {abs_path}")
