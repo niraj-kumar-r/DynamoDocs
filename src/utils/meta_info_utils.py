@@ -16,12 +16,12 @@ def make_fake_files():
     repo = git.Repo(CONFIG["repo_path"])
     unstaged_changes = repo.index.diff(None)
     untracked_files = repo.untracked_files
-    jump_files : List[str] = []
+    jump_files: List[str] = []
 
     for file_name in untracked_files:
         if file_name.endswith(".py"):
-            print(f"{Fore.LIGHTMAGENTA_EX}[SKIP untracked files]: 
-                  {Style.RESET_ALL}{file_name}")
+            print(f"{Fore.LIGHTMAGENTA_EX}[SKIP untracked files]: {
+                  Style.RESET_ALL}{file_name}")
             jump_files.append(file_name)
 
     for diff_file in unstaged_changes.iter_change_type('A'):
@@ -31,7 +31,7 @@ def make_fake_files():
             exit()
         jump_files.append(diff_file.a_path)
 
-    file_path_reflections : Dict[str,str] = {}
+    file_path_reflections: Dict[str, str] = {}
 
     for diff_file in itertools.chain(unstaged_changes.iter_change_type('M'), unstaged_changes.iter_change_type('D')):
         if diff_file.a_path.endswith(latest_verison_substring):
@@ -58,7 +58,7 @@ def make_fake_files():
             with open(os.path.join(CONFIG["repo_path"], now_file_path), "w") as writer:
                 writer.write(raw_file_content)
             file_path_reflections[now_file_path] = latest_file_path
-            
+
     return file_path_reflections, jump_files
 
 

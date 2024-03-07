@@ -14,7 +14,7 @@ from src.utils.meta_info_utils import latest_verison_substring
 
 
 class FileHandler:
-    def __init__(self, repo_path : str, file_path : Optional[str]):
+    def __init__(self, repo_path: str, file_path: Optional[str]):
         self.file_path = file_path
         self.repo_path = repo_path
         self.project_hierarchy = os.path.join(
@@ -253,11 +253,11 @@ class FileHandler:
                         not_ignored_files}: {e}"
                 )
                 continue
-            bar.set_description(f"generating repo structure: 
-                                {not_ignored_files}")
+            bar.set_description(f"generating repo structure: {
+                                not_ignored_files}")
         return repo_structure
-    
-    def convert_to_markdown_file(self, file_path : Optional[str] = None):
+
+    def convert_to_markdown_file(self, file_path: Optional[str] = None):
         """
         Converts the content of a file to markdown format.
 
@@ -276,17 +276,18 @@ class FileHandler:
         if file_path is None:
             file_path = self.file_path
 
-            
         file_dict = json_data.get(file_path)
 
         if file_dict is None:
             raise ValueError(
-                f"No file object found for {self.file_path} in project_hierarchy.json"
+                f"No file object found for {
+                    self.file_path} in project_hierarchy.json"
             )
 
         markdown = ""
         parent_dict = {}
-        objects = sorted(file_dict.values(), key=lambda obj: obj["code_start_line"])
+        objects = sorted(file_dict.values(),
+                         key=lambda obj: obj["code_start_line"])
         for obj in objects:
             if obj["parent"] is not None:
                 parent_dict[obj["name"]] = obj["parent"]
@@ -305,9 +306,11 @@ class FileHandler:
                 params_str = "()"
                 if obj["params"]:
                     params_str = f"({', '.join(obj['params'])})"
-            markdown += f"{'#' * level} {obj['type']} {obj['name']}{params_str}:\n"
+            markdown += f"{'#' * level} {obj['type']
+                                         } {obj['name']}{params_str}:\n"
             markdown += (
-                f"{obj['md_content'][-1] if len(obj['md_content']) >0 else ''}\n"
+                f"{obj['md_content'][-1]
+                    if len(obj['md_content']) > 0 else ''}\n"
             )
         markdown += "***\n"
 

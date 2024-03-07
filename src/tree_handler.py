@@ -4,6 +4,7 @@ from enum import Enum, unique, auto
 from typing import Any, Dict, List, Optional
 from colorama import Fore, Style
 from tqdm import tqdm
+from functools import partial
 import jedi
 import os
 import json
@@ -11,6 +12,8 @@ import json
 from src.config import CONFIG
 from src.mylogger import logger
 from src.file_handler import FileHandler
+from src.utils.meta_info_utils import latest_verison_substring
+from src.parallel import TaskManager, Task
 
 
 @unique
@@ -78,6 +81,8 @@ class DocItem:
     who_reference_me_name_list: List[str] = field(default_factory=list)
 
     has_task: bool = False
+
+    multithread_task_id: int = -1
 
     @staticmethod
     def check_and_return_ancestor(doc1: DocItem, doc2: DocItem) -> Optional[DocItem]:
@@ -266,9 +271,10 @@ class DocItem:
             if indent == 0:
                 return ""
             return "  " * indent + "|-"
-        print_obj_name = CONFIG["repo_path"]
         if self.item_type == DocItemType._repo:
             print_obj_name = CONFIG["repo_path"]
+        else:
+            print_obj_name = self.item_name
         if diff_status and self.need_to_generate(self, ignore_list=ignore_list):
             print(
                 print_indent(indent) + f"{self.item_type.print_self()
@@ -343,8 +349,8 @@ class MetaInfo:
     @staticmethod
     def init_meta_info(file_path_reflections: Dict[str, str], jump_files: List[str]) -> MetaInfo:
         abs_path = CONFIG["repo_path"]
-        print(f"{Fore.LIGHTRED_EX}Initializing Metainfo: 
-              {Style.RESET_ALL} from {abs_path}")
+        print(f"{Fore.LIGHTRED_EX}Initializing Metainfo: {
+              Style.RESET_ALL} from {abs_path}")
         file_handler = FileHandler(abs_path, None)
         repo_structure = file_handler.generate_overall_structure(
             file_path_reflections, jump_files)
@@ -353,7 +359,7 @@ class MetaInfo:
         metainfo.fake_file_reflection = file_path_reflections
         metainfo.jump_files = jump_files
         return metainfo
-    
+
     @staticmethod
     def from_project_hierarchy_path(repo_path: str) -> MetaInfo:
         project_hierarchy_json_path = os.path.join(
@@ -365,13 +371,13 @@ class MetaInfo:
         with open(project_hierarchy_json_path, "r", encoding="utf-8") as reader:
             project_hierarchy_json = json.load(reader)
         return MetaInfo.from_project_hierarchy_json(project_hierarchy_json)
-    
+
     @staticmethod
     def from_project_hierarchy_json(project_hierarchy_json) -> MetaInfo:
         target_meta_info = MetaInfo(
             target_repo_hierarchical_tree=DocItem(
                 item_type=DocItemType._repo,
-                obj_name="full_repo",
+                item_name="full_repo",
             )
         )
 
@@ -391,7 +397,7 @@ class MetaInfo:
                     now_structure.children[recursive_file_path[pos]] = DocItem(
                         item_type=DocItemType._dir,
                         md_content="",
-                        obj_name=recursive_file_path[pos],
+                        item_name=recursive_file_path[pos],
                     )
                     now_structure.children[
                         recursive_file_path[pos]
@@ -401,7 +407,7 @@ class MetaInfo:
             if recursive_file_path[-1] not in now_structure.children.keys():
                 now_structure.children[recursive_file_path[pos]] = DocItem(
                     item_type=DocItemType._file,
-                    obj_name=recursive_file_path[-1],
+                    item_name=recursive_file_path[-1],
                 )
                 now_structure.children[recursive_file_path[pos]
                                        ].parent = now_structure
@@ -414,7 +420,7 @@ class MetaInfo:
             obj_item_list: List[DocItem] = []
             for value in file_content:
                 obj_doc_item = DocItem(
-                    obj_name=value["name"],
+                    item_name=value["name"],
                     content=value,
                     md_content=value["md_content"],
                     code_start_line=value["code_start_line"],
@@ -433,7 +439,7 @@ class MetaInfo:
             for item in obj_item_list:
                 potential_father = None
                 for other_item in obj_item_list:
-                    def code_contain(item: DocItem, other_item:DocItem) -> bool:
+                    def code_contain(item: DocItem, other_item: DocItem) -> bool:
                         if other_item.code_end_line == item.code_end_line and other_item.code_start_line == item.code_start_line:
                             return False
                         if other_item.code_end_line < item.code_end_line or other_item.code_start_line > item.code_start_line:
@@ -470,14 +476,228 @@ class MetaInfo:
                     change_items(child)
             change_items(file_item)
 
-        target_meta_info.target_repo_hierarchical_tree.parse_tree_path(now_path=[])
-        target_meta_info.target_repo_hierarchical_tree.check_depth()
+        target_meta_info.target_repo_hierarchical_tree.parse_tree_path(
+            now_path=[])
+        target_meta_info.target_repo_hierarchical_tree.calculate_depth()
         return target_meta_info
-    
+
+    @staticmethod
+    def from_project_hierarchy_path(repo_path: str) -> MetaInfo:
+        project_hierarchy_json_path = os.path.join(
+            repo_path, "project_hierarchy.json")
+        logger.info(f"parsing from {project_hierarchy_json_path}")
+        if not os.path.exists(project_hierarchy_json_path):
+            raise NotImplementedError("Invalid operation detected")
+
+        with open(project_hierarchy_json_path, "r", encoding="utf-8") as reader:
+            project_hierarchy_json = json.load(reader)
+        return MetaInfo.from_project_hierarchy_json(project_hierarchy_json)
+
+    def get_all_files(self) -> List[DocItem]:
+        files = []
+
+        def walk_tree(now_node: DocItem) -> None:
+            if now_node.item_type == DocItemType._file:
+                files.append(now_node)
+            for _, child in now_node.children.items():
+                walk_tree(child)
+
+        walk_tree(self.target_repo_hierarchical_tree)
+        return files
+
+    def find_obj_with_lineno(self, file_node: DocItem, start_line_num) -> DocItem:
+        now_node = file_node
+        assert now_node != None
+        while len(now_node.children) > 0:
+            find_qualify_child = False
+            for _, child in now_node.children.items():
+                assert child.content != None
+                if (
+                    child.content["code_start_line"] <= start_line_num
+                    and child.content["code_end_line"] >= start_line_num
+                ):
+                    now_node = child
+                    find_qualify_child = True
+                    break
+            if not find_qualify_child:
+                return now_node
+        return now_node
+
+    def parse_reference(self):
+        file_nodes = self.get_all_files()
+
+        white_list_file_names, white_list_obj_names = (
+            [],
+            [],
+        )
+        if self.white_list != None:
+            white_list_file_names = [cont["file_path"]
+                                     for cont in self.white_list]
+            white_list_obj_names = [cont["id_text"]
+                                    for cont in self.white_list]
+
+        for file_node in tqdm(file_nodes, desc="parsing bidirectional reference"):
+            assert not file_node.get_full_name().endswith(latest_verison_substring)
+
+            ref_count = 0
+            rel_file_path = file_node.get_full_name()
+            assert rel_file_path not in self.jump_files
+
+            if white_list_file_names != [] and (
+                file_node.get_file_name() not in white_list_file_names
+            ):
+                continue
+
+            def walk_file(now_obj: DocItem):
+                nonlocal ref_count, white_list_file_names
+                in_file_only = False
+                if white_list_obj_names != [] and (
+                    now_obj.item_name not in white_list_obj_names
+                ):
+                    in_file_only = True
+
+                reference_list = find_all_referencer(
+                    repo_path=self.repo_path,
+                    variable_name=now_obj.item_name,
+                    file_path=rel_file_path,
+                    line_number=now_obj.content["code_start_line"],
+                    column_number=now_obj.content["name_column"],
+                    in_file_only=in_file_only,
+                )
+                for referencer_pos in reference_list:
+                    referencer_file_ral_path = referencer_pos[0]
+                    if referencer_file_ral_path in self.fake_file_reflection.values():
+                        print(
+                            f"{Fore.LIGHTBLUE_EX}[Reference From Unstaged Version, skip]{
+                                Style.RESET_ALL} {referencer_file_ral_path} -> {now_obj.get_full_name()}"
+                        )
+                        continue
+                    elif referencer_file_ral_path in self.jump_files:
+                        print(
+                            f"{Fore.LIGHTBLUE_EX}[Reference From Unstracked Version, skip]{
+                                Style.RESET_ALL} {referencer_file_ral_path} -> {now_obj.get_full_name()}"
+                        )
+                        continue
+
+                    target_file_hiera = referencer_file_ral_path.split("/")
+
+                    referencer_file_item = self.target_repo_hierarchical_tree.find(
+                        target_file_hiera)
+                    if referencer_file_item == None:
+                        print(
+                            f"{Fore.LIGHTRED_EX}Error: Find \"{referencer_file_ral_path}\"(not in target repo){
+                                Style.RESET_ALL} referenced {now_obj.get_full_name()}"
+                        )
+                        continue
+                    referencer_node: DocItem = self.find_obj_with_lineno(
+                        referencer_file_item, referencer_pos[1])
+                    if referencer_node.item_name == now_obj.item_name:
+                        logger.info(
+                            f"Jedi find {now_obj.get_full_name(
+                            )} with name_duplicate_reference, skipped"
+                        )
+                        continue
+
+                    if DocItem.check_and_return_ancestor(now_obj, referencer_node) == None:
+                        if now_obj not in referencer_node.reference_who:
+                            special_reference_type = (referencer_node.item_type in [
+                                                      DocItemType._function, DocItemType._sub_function, DocItemType._class_method]) and referencer_node.code_start_line == referencer_pos[1]
+                            referencer_node.special_reference_type.append(
+                                special_reference_type)
+                            referencer_node.reference_who.append(now_obj)
+                            now_obj.who_reference_me.append(referencer_node)
+                            ref_count += 1
+                for _, child in now_obj.children.items():
+                    walk_file(child)
+
+            for _, child in file_node.children.items():
+                walk_file(child)
+
+    def get_task_manager(self, now_node: DocItem, task_available_func) -> TaskManager:
+        doc_items = now_node.get_preorder_traversal()
+        if self.white_list != None:
+
+            def in_white_list(item: DocItem):
+                for cont in self.white_list:
+                    if (
+                        item.get_file_name() == cont["file_path"]
+                        and item.item_name == cont["id_text"]
+                    ):
+                        return True
+                return False
+
+            doc_items = list(filter(in_white_list, doc_items))
+        doc_items = list(filter(task_available_func, doc_items))
+        doc_items = sorted(doc_items, key=lambda x: x.depth)
+        deal_items = []
+        task_manager = TaskManager()
+        bar = tqdm(total=len(doc_items), desc="parsing topology task-list")
+        while doc_items:
+            min_break_level = 1e7
+            target_item = None
+            for item in doc_items:
+                best_break_level = 0
+                second_best_break_level = 0
+                for _, child in item.children.items():
+                    if task_available_func(child) and (child not in deal_items):
+                        best_break_level += 1
+                for referenced, special in zip(item.reference_who, item.special_reference_type):
+                    if task_available_func(referenced) and (referenced not in deal_items):
+                        best_break_level += 1
+                    if task_available_func(referenced) and (not special) and (referenced not in deal_items):
+                        second_best_break_level += 1
+                if best_break_level == 0:
+                    min_break_level = -1
+                    target_item = item
+                    break
+                if second_best_break_level < min_break_level:
+                    target_item = item
+                    min_break_level = second_best_break_level
+
+            if min_break_level > 0:
+                print(f"circle-reference(second-best still failed), level={
+                      min_break_level}: {target_item.get_full_name()}")
+
+            item_denp_task_ids = []
+            for _, child in target_item.children.items():
+                if child.multithread_task_id != -1:
+                    assert child.multithread_task_id in task_manager.task_dict.keys()
+                    item_denp_task_ids.append(child.multithread_task_id)
+
+            for referenced_item in target_item.reference_who:
+                if referenced_item.multithread_task_id in task_manager.task_dict.keys():
+                    item_denp_task_ids.append(
+                        referenced_item.multithread_task_id)
+
+            item_denp_task_ids = list(set(item_denp_task_ids))
+
+            if task_available_func == None or task_available_func(target_item):
+                task_id = task_manager.add_task(
+                    dependency_task_id=item_denp_task_ids, extra=target_item
+                )
+                target_item.multithread_task_id = task_id
+
+            deal_items.append(target_item)
+            doc_items.remove(target_item)
+            bar.update(1)
+
+        return task_manager
+
+    def get_topology(self, task_available_func) -> TaskManager:
+        self.parse_reference()
+        task_manager = self.get_task_manager(
+            self.target_repo_hierarchical_tree, task_available_func=task_available_func
+        )
+        return task_manager
 
 
 if __name__ == "__main__":
-    repo_path = "some_repo_path"
-    meta = MetaInfo.from_project_hierarchy_json(repo_path)
+    repo_path = "/home/niraj/stuff/coding/projects/DynamoDocs"
+    structure = FileHandler(repo_path, None).generate_overall_structure(
+        {}, []
+    )
+    meta = MetaInfo.from_project_hierarchy_json(structure)
     meta.target_repo_hierarchical_tree.print_recursive()
-    # topology_list = meta.get_topology()
+    check_task_avail = partial(DocItem.need_to_generate, ignore_list=[])
+    topology_list: TaskManager = meta.get_topology(check_task_avail)
+    print(topology_list)
