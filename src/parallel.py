@@ -132,15 +132,17 @@ if __name__ == "__main__":
     def some_function():
         time.sleep(random.random() * 3)
 
-    i1 = task_manager.add_task(some_function, [])
-    i2 = task_manager.add_task(some_function, [])
-    i3 = task_manager.add_task(some_function, [i1])
-    i4 = task_manager.add_task(some_function, [i2, i3])
-    i5 = task_manager.add_task(some_function, [i2, i3])
-    i6 = task_manager.add_task(some_function, [i1])
+    i1 = task_manager.add_task([], {"func": 1})
+    i2 = task_manager.add_task([], {"func": 2})
+    i3 = task_manager.add_task([i1], {"func": 3})
+    i4 = task_manager.add_task([i2, i3], {"func": 4})
+    i5 = task_manager.add_task([i2, i3], {"func": 5})
+    i6 = task_manager.add_task([i1], {"func": 6})
+
+    l = [i1, i2, i3, i4, i5, i6]
 
     threads = [threading.Thread(
-        target=worker, args=(task_manager,)) for _ in range(4)]
+        target=worker, args=(task_manager, i, print)) for i in l]
     for thread in threads:
         thread.start()
     for thread in threads:
