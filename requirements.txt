@@ -7,3 +7,5 @@ parso==0.8.3
 PyYAML==6.0.1
 smmap==5.0.1
 tqdm==4.66.2
+openai==1.13.3
+tiktoken==0.6.0
