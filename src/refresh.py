@@ -16,7 +16,7 @@ from src.file_handler import FileHandler
 from src.utils.meta_info_utils import latest_verison_substring, make_fake_files, delete_fake_files
 from src.diff_detector import DiffDetector
 from src.project_manager import ProjectManager
-from src.chat_engine import ChatEngine
+from src.engine import ChatEngine
 from src.tree_handler import MetaInfo, DocItem, DocItemType, DocItemStatus, need_to_generate
 from src.mylogger import logger
 from src.config import CONFIG
