@@ -15,6 +15,8 @@ class DiffDetector:
         self.repo_path = repo_path
         self.repo = git.Repo(repo_path)
 
+    # looks the differences between the current head and the stage changes and also tells wether the file is newly added or not
+        
     def get_staged_python_files(self) -> Dict[Optional[str], bool]:
         repo = self.repo
         staged_files = {}
@@ -27,6 +29,11 @@ class DiffDetector:
                 staged_files[diff.a_path] = is_new_file
 
         return staged_files
+
+
+    #If the file is new, the get_file_diff method stages that file for commit. It ensures that the 
+    #newly added file is included in the next commit. On the other hand, if the file is not new (i.e., it has already been committed), 
+    #the method retrieves the differences between the current version (HEAD) and the previous version of the file
 
     def get_file_diff(self, file_path: str, is_new_file: bool) -> List[str]:
         repo = self.repo
