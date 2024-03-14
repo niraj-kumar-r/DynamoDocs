@@ -1,2 +1,16 @@
-repo_path: "/home/niraj/stuff/coding/projects/DynamoDocs"
+repo_path: "https://github.com/UMAKANT06/ResumeBuilder"
 project_hierarchy: .project_hierarchy
+max_thread_count: 10
+max_document_tokens : 1024
+ignore_list : []
+white_list : []
+markdown_Docs_folder : "markdown_docs"
+api_keys :
+  model :
+    api_key : "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"
+    base_url : "https://api.openai.com"
+
+default_completion_kwargs:
+  temperature: 0.7
+  model: "gpt-3.5-turbo"
+  request_timeout : 60

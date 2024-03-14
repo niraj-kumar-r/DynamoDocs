@@ -92,7 +92,7 @@ class Runner:
         try:
             rel_file_path = doc_item.get_full_name()
 
-            ignore_list = CONFIG.get("ignore_list", [])
+            ignore_list = CONFIG.get("ignore_list", [])      
             if not need_to_generate(doc_item, ignore_list):
                 print(f"Ignored/Document already generated, skipping: {doc_item.get_full_name()}")
             else:
