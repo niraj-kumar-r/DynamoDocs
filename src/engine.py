@@ -258,9 +258,12 @@ class ChatEngine:
             try:
                 # Get basic configuration
                 client = OpenAI(
-                    api_key=self.config["api_keys"][model][0]["api_key"],
-                    base_url=self.config["api_keys"][model][0]["base_url"],
-                    timeout=self.config["default_completion_kwargs"]["request_timeout"],
+                    # api_key=self.config["api_keys"][model][0]["api_key"],
+                    api_key="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",
+                    # base_url=self.config["api_keys"][model][0]["base_url"],
+                    base_url="https://api.openai.com/v1",
+                    # timeout=self.config["default_completion_kwargs"]["request_timeout"],
+                    timeout=60,
                 )
 
                 messages = [

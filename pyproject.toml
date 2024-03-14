@@ -1,0 +1,6 @@
+
+[project]
+# PEP 621 project metadata
+# See https://www.python.org/dev/peps/pep-0621/
+dependencies = ["colorama==0.4.6", "gitdb==4.0.11", "GitPython==3.1.42", "jedi==0.19.1", "loguru==0.7.2", "parso==0.8.3", "PyYAML==6.0.1", "smmap==5.0.1", "tqdm==4.66.2", "openai==1.13.3", "tiktoken==0.6.0"]
+requires-python = ">=3.11"
