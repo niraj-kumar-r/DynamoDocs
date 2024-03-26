@@ -21,7 +21,7 @@ from src.engine import ChatEngine
 from src.tree_handler import MetaInfo, DocItem, DocItemType, DocItemStatus, need_to_generate
 from src.mylogger import logger
 from src.config import CONFIG
-from src.parallel import worker
+from src.threads import worker
 
 
 def load_whitelist():

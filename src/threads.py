@@ -17,9 +17,9 @@ class Task:
 class TaskManager:
     def __init__(self):
         """
-        Initialize a Parallel object.
+        Initialize a Task Manager object.
 
-        This method initializes the Parallel object by setting up the necessary attributes.
+        This method initializes the Task Manager object by setting up the necessary attributes.
 
         Attributes:
         - task_dict (Dict[int, Task]): A dictionary that maps task IDs to Task objects.

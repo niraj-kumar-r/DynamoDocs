@@ -13,7 +13,7 @@ from src.config import CONFIG
 from src.mylogger import logger
 from src.file_handler import FileHandler
 from src.utils.meta_info_utils import latest_verison_substring
-from src.parallel import TaskManager, Task
+from src.threads import TaskManager, Task
 
 
 @unique
