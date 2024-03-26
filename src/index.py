@@ -1,3 +1,4 @@
+from __future__ import annotations
 import threading
 import os
 import json
@@ -18,7 +19,7 @@ from src.utils.meta_info_utils import latest_verison_substring, make_fake_files,
 from src.diff_detector import DiffDetector
 from src.project_manager import ProjectManager
 from src.engine import ChatEngine
-from src.tree_handler import MetaInfo, DocItem, DocItemType, DocItemStatus, need_to_generate
+from src.tree_handler import MetaInfo, DocItem, DocItemStatus
 from src.mylogger import logger
 from src.config import CONFIG
 from src.threads import worker
@@ -42,7 +43,8 @@ class Runner:
         self.project_manager = ProjectManager(
             repo_path=CONFIG["repo_path"], project_hierarchy=CONFIG["project_hierarchy"]
         )
-        self.diff_detector = DiffDetector(repo_path=CONFIG["repo_path"])
+        self.diff_detector = DiffDetector()
+        print(self.diff_detector.repo_path)
         self.chat_engine = ChatEngine(CONFIG=CONFIG)
 
         if not os.path.exists(
@@ -93,7 +95,7 @@ class Runner:
             rel_file_path = doc_item.get_full_name()
 
             ignore_list = CONFIG.get("ignore_list", [])
-            if not need_to_generate(doc_item, ignore_list):
+            if not DocItem.need_to_generate(doc_item, ignore_list):
                 print(
                     f"Ignored/Document already generated, skipping: {doc_item.get_full_name()}")
             else:
@@ -121,11 +123,11 @@ class Runner:
         logger.info("Starting to generate documentation")
         ignore_list = CONFIG.get("ignore_list", [])
         check_task_available_func = partial(
-            need_to_generate, ignore_list=ignore_list)
+            DocItem.need_to_generate, ignore_list=ignore_list)
         task_manager = self.meta_info.get_topology(
             check_task_available_func
         )
-        # topology_list = [item for item in topology_list if need_to_generate(item, ignore_list)]
+        # topology_list = [item for item in topology_list if DocItem.need_to_generate(item, ignore_list)]
         before_task_len = len(task_manager.task_dict)
 
         if not self.meta_info.in_generation_process:
@@ -283,7 +285,7 @@ class Runner:
 
         ignore_list = CONFIG.get("ignore_list", [])
         check_task_available_func = partial(
-            need_to_generate, ignore_list=ignore_list)
+            DocItem.need_to_generate, ignore_list=ignore_list)
 
         task_manager = self.meta_info.get_task_manager(
             self.meta_info.target_repo_hierarchical_tree, task_available_func=check_task_available_func)
