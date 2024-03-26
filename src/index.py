@@ -1,5 +1,6 @@
 import threading
-import os, json
+import os
+import json
 import json
 import git
 import itertools
@@ -7,7 +8,7 @@ from tqdm import tqdm
 from typing import List
 from functools import partial
 import subprocess
-import shutil  
+import shutil
 from concurrent.futures import ThreadPoolExecutor
 from colorama import Fore, Style
 import time
@@ -21,8 +22,6 @@ from src.tree_handler import MetaInfo, DocItem, DocItemType, DocItemStatus, need
 from src.mylogger import logger
 from src.config import CONFIG
 from src.parallel import worker
-
-
 
 
 def load_whitelist():
@@ -50,19 +49,20 @@ class Runner:
             os.path.join(CONFIG["repo_path"], CONFIG["project_hierarchy"])
         ):
             file_path_reflections, jump_files = make_fake_files()
-            self.meta_info = MetaInfo.init_meta_info(file_path_reflections, jump_files)
+            self.meta_info = MetaInfo.init_meta_info(
+                file_path_reflections, jump_files)
             self.meta_info.checkpoint(
                 target_dir_path=os.path.join(
                     CONFIG["repo_path"], CONFIG["project_hierarchy"]
                 )
             )
-        else: 
+        else:
             self.meta_info = MetaInfo.from_checkpoint_path(
                 os.path.join(CONFIG["repo_path"], CONFIG["project_hierarchy"])
             )
 
         self.meta_info.white_list = load_whitelist()
-        self.meta_info.checkpoint( 
+        self.meta_info.checkpoint(
             target_dir_path=os.path.join(
                 CONFIG["repo_path"], CONFIG["project_hierarchy"]
             )
@@ -92,11 +92,13 @@ class Runner:
         try:
             rel_file_path = doc_item.get_full_name()
 
-            ignore_list = CONFIG.get("ignore_list", [])      
+            ignore_list = CONFIG.get("ignore_list", [])
             if not need_to_generate(doc_item, ignore_list):
-                print(f"Ignored/Document already generated, skipping: {doc_item.get_full_name()}")
+                print(
+                    f"Ignored/Document already generated, skipping: {doc_item.get_full_name()}")
             else:
-                print(f" -- Generating document {Fore.LIGHTYELLOW_EX}{doc_item.item_type.name}: {doc_item.get_full_name()}{Style.RESET_ALL}")
+                print(f" -- Generating document {Fore.LIGHTYELLOW_EX}{
+                      doc_item.item_type.name}: {doc_item.get_full_name()}{Style.RESET_ALL}")
                 file_handler = FileHandler(CONFIG["repo_path"], rel_file_path)
                 response_message = self.chat_engine.generate_doc(
                     doc_item=doc_item,
@@ -110,14 +112,16 @@ class Runner:
                     )
                 )
         except Exception as e:
-            logger.info(f"Failed to generate document after multiple attempts, skipping: {doc_item.get_full_name()}")   
+            logger.info(f"Failed to generate document after multiple attempts, skipping: {
+                        doc_item.get_full_name()}")
             logger.info("Error:", e)
             doc_item.item_status = DocItemStatus.doc_has_not_been_generated
 
     def first_generate(self):
         logger.info("Starting to generate documentation")
         ignore_list = CONFIG.get("ignore_list", [])
-        check_task_available_func = partial(need_to_generate, ignore_list=ignore_list)
+        check_task_available_func = partial(
+            need_to_generate, ignore_list=ignore_list)
         task_manager = self.meta_info.get_topology(
             check_task_available_func
         )
@@ -129,7 +133,7 @@ class Runner:
             logger.info("Init a new task-list")
         else:
             logger.info("Load from an existing task-list")
-        self.meta_info.print_task_list(task_manager.task_dict)      
+        self.meta_info.print_task_list(task_manager.task_dict)
 
         try:
             task_manager.sync_func = self.markdown_refresh
@@ -159,27 +163,30 @@ class Runner:
                 )
             )
             logger.info(
-                f"Successfully generated {before_task_len - len(task_manager.task_dict)} documents"
+                f"Successfully generated {
+                    before_task_len - len(task_manager.task_dict)} documents"
             )
 
         except BaseException as e:
             logger.info(
-                f"Finding an error as {e}, {before_task_len - len(task_manager.task_dict)} docs are generated at this time"
+                f"Finding an error as {e}, {
+                    before_task_len - len(task_manager.task_dict)} docs are generated at this time"
             )
 
     def markdown_refresh(self):
         with self.runner_lock:
-            markdown_folder = os.path.join(CONFIG["repo_path"],CONFIG["Markdown_Docs_folder"])
+            markdown_folder = os.path.join(
+                CONFIG["repo_path"], CONFIG["Markdown_Docs_folder"])
             if os.path.exists(markdown_folder):
-                shutil.rmtree(markdown_folder)  
-            os.mkdir(markdown_folder)  
+                shutil.rmtree(markdown_folder)
+            os.mkdir(markdown_folder)
 
             file_item_list = self.meta_info.get_all_files()
             for file_item in tqdm(file_item_list):
 
                 def recursive_check(
                     doc_item: DocItem,
-                ) -> bool: 
+                ) -> bool:
                     if doc_item.md_content != []:
                         return True
                     for _, child in doc_item.children.items():
@@ -194,15 +201,18 @@ class Runner:
                 def to_markdown(item: DocItem, now_level: int) -> str:
                     markdown_content = ""
                     markdown_content += (
-                        "#" * now_level + f" {item.item_type.to_str()} {item.obj_name}"
+                        "#" * now_level +
+                        f" {item.item_type.to_str()} {item.obj_name}"
                     )
                     if (
                         "params" in item.content.keys()
                         and len(item.content["params"]) > 0
                     ):
-                        markdown_content += f"({', '.join(item.content['params'])})"
+                        markdown_content += f"({', '.join(
+                            item.content['params'])})"
                     markdown_content += "\n"
-                    markdown_content += f"{item.md_content[-1] if len(item.md_content) >0 else 'Doc is waiting to be generated...'}\n"
+                    markdown_content += f"{item.md_content[-1] if len(
+                        item.md_content) > 0 else 'Doc is waiting to be generated...'}\n"
                     for _, child in item.children.items():
                         markdown_content += to_markdown(child, now_level + 1)
                         markdown_content += "***\n"
@@ -212,7 +222,8 @@ class Runner:
                 markdown = ""
                 for _, child in file_item.children.items():
                     markdown += to_markdown(child, 2)
-                assert markdown != None, f"Markdown content is empty, file path: {rel_file_path}"
+                assert markdown != None, f"Markdown content is empty, file path: {
+                    rel_file_path}"
                 file_path = os.path.join(
                     CONFIG["Markdown_Docs_folder"],
                     file_item.get_file_name().replace(".py", ".md"),
@@ -225,7 +236,8 @@ class Runner:
                     file.write(markdown)
 
             logger.info(
-                f"markdown document has been refreshed at {CONFIG['Markdown_Docs_folder']}"
+                f"markdown document has been refreshed at {
+                    CONFIG['Markdown_Docs_folder']}"
             )
 
     def git_commit(self, commit_message):
@@ -248,43 +260,48 @@ class Runner:
         """
 
         if self.meta_info.document_version == "":
-           
-            self.first_generate() 
+
+            self.first_generate()
             self.meta_info.checkpoint(
                 target_dir_path=os.path.join(
                     CONFIG["repo_path"], CONFIG["project_hierarchy"]
                 ),
                 flash_reference_relation=True,
-            ) 
+            )
             return
 
-        if not self.meta_info.in_generation_process: # 如果不是在生成过程中，就开始检测变更
+        if not self.meta_info.in_generation_process:  # 如果不是在生成过程中，就开始检测变更
             logger.info("Starting to detect changes.")
 
             file_path_reflections, jump_files = make_fake_files()
-            new_meta_info = MetaInfo.init_meta_info(file_path_reflections, jump_files)
+            new_meta_info = MetaInfo.init_meta_info(
+                file_path_reflections, jump_files)
             new_meta_info.load_doc_from_older_meta(self.meta_info)
 
-            self.meta_info = new_meta_info 
-            self.meta_info.in_generation_process = True 
+            self.meta_info = new_meta_info
+            self.meta_info.in_generation_process = True
 
-      
         ignore_list = CONFIG.get("ignore_list", [])
-        check_task_available_func = partial(need_to_generate, ignore_list=ignore_list)
+        check_task_available_func = partial(
+            need_to_generate, ignore_list=ignore_list)
 
-        task_manager = self.meta_info.get_task_manager(self.meta_info.target_repo_hierarchical_tree,task_available_func=check_task_available_func)
-        
+        task_manager = self.meta_info.get_task_manager(
+            self.meta_info.target_repo_hierarchical_tree, task_available_func=check_task_available_func)
+
         for item_name, item_type in self.meta_info.deleted_items_from_older_meta:
-            print(f"{Fore.LIGHTMAGENTA_EX}[Dir/File/Obj Delete Dected]: {Style.RESET_ALL} {item_type} {item_name}")
+            print(f"{Fore.LIGHTMAGENTA_EX}[Dir/File/Obj Delete Dected]: {
+                  Style.RESET_ALL} {item_type} {item_name}")
         self.meta_info.print_task_list(task_manager.task_dict)
         if task_manager.all_success:
-            logger.info("No tasks in the queue, all documents are completed and up to date.")
+            logger.info(
+                "No tasks in the queue, all documents are completed and up to date.")
 
         task_manager.sync_func = self.markdown_refresh
         threads = [
             threading.Thread(
                 target=worker,
-                args=(task_manager, process_id, self.generate_doc_for_a_single_item),
+                args=(task_manager, process_id,
+                      self.generate_doc_for_a_single_item),
             )
             for process_id in range(CONFIG["max_thread_count"])
         ]
@@ -310,12 +327,11 @@ class Runner:
         logger.info(f"Starting to git-add DocMetaInfo and newly generated Docs")
         time.sleep(1)
 
-
         git_add_result = self.diff_detector.add_unstaged_files()
 
         if len(git_add_result) > 0:
-            logger.info(f"Added {[file for file in git_add_result]} to staging area")
-
+            logger.info(
+                f"Added {[file for file in git_add_result]} to staging area")
 
     def add_new_item(self, file_handler, json_data):
         """
@@ -340,7 +356,8 @@ class Runner:
             code_info = file_handler.get_obj_code_info(
                 structure_type, name, start_line, end_line, parent, params
             )
-            response_message = self.chat_engine.generate_doc(code_info, file_handler)
+            response_message = self.chat_engine.generate_doc(
+                code_info, file_handler)
             md_content = response_message.content
             code_info["md_content"] = md_content
             file_dict[name] = code_info
@@ -360,7 +377,8 @@ class Runner:
             ),
             markdown,
         )
-        logger.info(f"Markdown documentation for the new file {file_handler.file_path} has been generated.")
+        logger.info(f"Markdown documentation for the new file {
+                    file_handler.file_path} has been generated.")
 
     def process_file_changes(self, repo_path, file_path, is_new_file):
         """
@@ -377,7 +395,7 @@ class Runner:
         """
         file_handler = FileHandler(
             repo_path=repo_path, file_path=file_path
-        ) 
+        )
         source_code = file_handler.read_file()
         changed_lines = self.diff_detector.parse_diffs(
             self.diff_detector.get_file_diff(file_path, is_new_file)
@@ -399,7 +417,8 @@ class Runner:
             ) as f:
                 json.dump(json_data, f, indent=4, ensure_ascii=False)
 
-            logger.info(f"Updated json structure information for the {file_handler.file_path} file.")
+            logger.info(f"Updated json structure information for the {
+                        file_handler.file_path} file.")
 
             markdown = file_handler.convert_to_markdown_file(
                 file_path=file_handler.file_path
@@ -411,7 +430,8 @@ class Runner:
                 ),
                 markdown,
             )
-            logger.info(f"Updated Markdown documentation for the {file_handler.file_path} file.")
+            logger.info(f"Updated Markdown documentation for the {
+                        file_handler.file_path} file.")
 
         else:
             self.add_new_item(file_handler, json_data)
@@ -419,7 +439,8 @@ class Runner:
         git_add_result = self.diff_detector.add_unstaged_files()
 
         if len(git_add_result) > 0:
-            logger.info(f"Added {[file for file in git_add_result]} to the staging area")
+            logger.info(
+                f"Added {[file for file in git_add_result]} to the staging area")
 
         # self.git_commit(f"Update documentation for {file_handler.file_path}")
 
@@ -444,9 +465,10 @@ class Runner:
 
         referencer_list = []
 
-        current_objects = file_handler.generate_file_structure(file_handler.file_path)
+        current_objects = file_handler.generate_file_structure(
+            file_handler.file_path)
 
-        current_info_dict = {obj["name"]: obj for obj in current_objects.values()}
+        current_info_dict = {obj["name"]                             : obj for obj in current_objects.values()}
 
         for current_obj_name, current_obj_info in current_info_dict.items():
             if current_obj_name in file_dict:
@@ -485,11 +507,11 @@ class Runner:
 
         with ThreadPoolExecutor(max_workers=5) as executor:
             futures = []
-            for changed_obj in changes_in_pyfile["added"]:  
+            for changed_obj in changes_in_pyfile["added"]:
                 for ref_obj in referencer_list:
                     if (
                         changed_obj[0] == ref_obj["obj_name"]
-                    ): 
+                    ):
                         future = executor.submit(
                             self.update_object,
                             file_dict,
@@ -498,7 +520,8 @@ class Runner:
                             ref_obj["obj_referencer_list"],
                         )
                         print(
-                            f"Generating documentation for {Fore.CYAN}{file_handler.file_path}{Style.RESET_ALL}'s {Fore.CYAN}{changed_obj[0]}{Style.RESET_ALL} object."
+                            f"Generating documentation for {Fore.CYAN}{file_handler.file_path}{
+                                Style.RESET_ALL}'s {Fore.CYAN}{changed_obj[0]}{Style.RESET_ALL} object."
                         )
                         futures.append(future)
 
@@ -542,7 +565,8 @@ class Runner:
             del_obj: []
         """
         current_version, previous_version = file_handler.get_modified_file_versions()
-        parse_current_py = file_handler.get_functions_and_classes(current_version)
+        parse_current_py = file_handler.get_functions_and_classes(
+            current_version)
         parse_previous_py = (
             file_handler.get_functions_and_classes(previous_version)
             if previous_version
