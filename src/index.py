@@ -206,7 +206,7 @@ class Runner:
                     markdown_content = ""
                     markdown_content += (
                         "#" * now_level +
-                        f" {item.item_type.to_str()} {item.obj_name}"
+                        f" {item.item_type.to_str()} {item.item_name}"
                     )
                     if (
                         "params" in item.content.keys()
