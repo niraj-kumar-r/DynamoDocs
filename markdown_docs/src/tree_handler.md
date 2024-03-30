@@ -63,7 +63,8 @@ documentation to be generated
 src/tree_handler.py/find_all_referencer - [DocItemType._function] : 
 documentation to be generated
 ## ClassDef MetaInfo
-Doc is waiting to be generated...
+src/tree_handler.py/MetaInfo - [DocItemType._class] : 
+documentation to be generated
 ### FunctionDef init_meta_info(file_path_reflections, jump_files)
 src/tree_handler.py/MetaInfo/init_meta_info - [DocItemType._class_method] : 
 documentation to be generated

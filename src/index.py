@@ -100,7 +100,7 @@ class Runner:
                     f"Ignored/Document already generated, skipping: {doc_item.get_full_name()}")
             else:
                 print(f" -- Generating document {Fore.LIGHTYELLOW_EX}{
-                      doc_item.item_type.name}: {doc_item.get_full_name()}{Style.RESET_ALL}")
+                    doc_item.item_type.name}: {doc_item.get_full_name()}{Style.RESET_ALL}")
                 file_handler = FileHandler(CONFIG["repo_path"], rel_file_path)
                 response_message = self.chat_engine.generate_doc(
                     doc_item=doc_item,
