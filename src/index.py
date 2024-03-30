@@ -106,7 +106,7 @@ class Runner:
                     doc_item=doc_item,
                     file_handler=file_handler,
                 )
-                doc_item.md_content.append(response_message.content)
+                doc_item.md_content.append(response_message["content"])
                 doc_item.item_status = DocItemStatus.doc_upto_date
                 self.meta_info.checkpoint(
                     target_dir_path=os.path.join(
