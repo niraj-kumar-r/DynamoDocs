@@ -11,7 +11,7 @@ from src.file_handler import FileHandler
 
 class DiffDetector:
 
-    def __int__(self, repo_path: Optional[str]) -> None:
+    def __init__(self, repo_path: Optional[str] = None) -> None:
         if repo_path is None:
             self.repo_path = CONFIG["repo_path"]
         else:

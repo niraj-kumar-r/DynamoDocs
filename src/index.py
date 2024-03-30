@@ -43,7 +43,7 @@ class Runner:
         self.project_manager = ProjectManager(
             repo_path=CONFIG["repo_path"], project_hierarchy=CONFIG["project_hierarchy"]
         )
-        self.diff_detector = DiffDetector()
+        self.diff_detector = DiffDetector(repo_path=CONFIG["repo_path"])
         print(self.diff_detector.repo_path)
         self.chat_engine = ChatEngine(CONFIG=CONFIG)
 

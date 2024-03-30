@@ -3,8 +3,8 @@ project_hierarchy: .project_hierarchy
 max_thread_count: 10
 max_document_tokens: 1024
 ignore_list: []
-white_list: []
-markdown_Docs_folder: "markdown_docs"
+whitelist_path: #if whitelist_path is not none, We only generate docs on whitelist
+Markdown_Docs_folder: "markdown_docs"
 
 api_keys:
     model:
