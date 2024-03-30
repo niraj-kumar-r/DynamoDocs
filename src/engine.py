@@ -161,6 +161,7 @@ class ChatEngine:
             reference_letter=reference_letter,
             referencer_content=referencer_content,
             parameters_or_attribute=parameters_or_attribute,
+            language="English",
         )
 
         user_prompt = USER_PROMPT
