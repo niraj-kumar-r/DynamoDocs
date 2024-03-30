@@ -107,7 +107,7 @@ class Runner:
                     file_handler=file_handler,
                 )
                 doc_item.md_content.append(response_message.content)
-                doc_item.item_status = DocItemStatus.doc_up_to_date
+                doc_item.item_status = DocItemStatus.doc_upto_date
                 self.meta_info.checkpoint(
                     target_dir_path=os.path.join(
                         CONFIG["repo_path"], CONFIG["project_hierarchy"]
@@ -272,7 +272,7 @@ class Runner:
             )
             return
 
-        if not self.meta_info.in_generation_process:  # 如果不是在生成过程中，就开始检测变更
+        if not self.meta_info.in_generation_process:
             logger.info("Starting to detect changes.")
 
             file_path_reflections, jump_files = make_fake_files()
