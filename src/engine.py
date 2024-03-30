@@ -228,5 +228,5 @@ class ChatEngine:
         #         if attempt == max_attempts:
         #             return None
         return {
-            "content": f"#{doc_item.get_full_name()} - [{doc_item.item_type}] : \ndocumentation to be generated"
+            "content": f"{doc_item.get_full_name()} - [{doc_item.item_type}] : \ndocumentation to be generated"
         }
