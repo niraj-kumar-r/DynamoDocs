@@ -2,6 +2,7 @@
 config.yml
 
 *_latest_version.py
+.project_hierarchy
 
 # vscode settings
 .vscode/
