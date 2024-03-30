@@ -1,12 +1,12 @@
 {
-    "doc_version": "",
-    "in_generation_process": false,
-    "fake_file_reflection": {
-        "src/diff_detector.py": "src/diff_detector_latest_version.py",
-        "src/engine.py": "src/engine_latest_version.py",
-        "src/index.py": "src/index_latest_version.py",
-        "src/tree_handler.py": "src/tree_handler_latest_version.py"
-    },
-    "jump_files": [],
-    "deleted_items_from_older_meta": []
+  "doc_version": "",
+  "in_generation_process": false,
+  "fake_file_reflection": {
+    "src/diff_detector.py": "src/diff_detector_latest_version.py",
+    "src/engine.py": "src/engine_latest_version.py",
+    "src/index.py": "src/index_latest_version.py",
+    "src/tree_handler.py": "src/tree_handler_latest_version.py"
+  },
+  "jump_files": [],
+  "deleted_items_from_older_meta": []
 }

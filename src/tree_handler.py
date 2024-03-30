@@ -1,6 +1,7 @@
 from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum, unique, auto
+import threading
 from typing import Any, Dict, List, Optional
 from colorama import Fore, Style
 from tqdm import tqdm
@@ -346,6 +347,8 @@ class MetaInfo:
     deleted_items_from_older_meta: List[List] = field(default_factory=list)
     in_generation_process: bool = False
 
+    checkpoint_lock: threading.Lock = threading.Lock()
+
     @staticmethod
     def init_meta_info(file_path_reflections: Dict[str, str], jump_files: List[str]) -> MetaInfo:
         abs_path = CONFIG["repo_path"]
@@ -359,6 +362,64 @@ class MetaInfo:
         metainfo.fake_file_reflection = file_path_reflections
         metainfo.jump_files = jump_files
         return metainfo
+
+    @staticmethod
+    def from_checkpoint_path(checkpoint_dir_path: str) -> MetaInfo:
+        project_hierarchy_json_path = os.path.join(
+            checkpoint_dir_path, "project_hierarchy.json"
+        )
+
+        with open(project_hierarchy_json_path, "r", encoding="utf-8") as reader:
+            project_hierarchy_json = json.load(reader)
+        metainfo = MetaInfo.from_project_hierarchy_json(project_hierarchy_json)
+
+        with open(
+            os.path.join(checkpoint_dir_path, "meta-info.json"), "r", encoding="utf-8"
+        ) as reader:
+            meta_data = json.load(reader)
+            metainfo.repo_path = CONFIG["repo_path"]
+            metainfo.document_version = meta_data["doc_version"]
+            metainfo.fake_file_reflection = meta_data["fake_file_reflection"]
+            metainfo.jump_files = meta_data["jump_files"]
+            metainfo.in_generation_process = meta_data["in_generation_process"]
+            metainfo.deleted_items_from_older_meta = meta_data["deleted_items_from_older_meta"]
+
+        print(
+            f"{Fore.CYAN}Loading MetaInfo:{
+                Style.RESET_ALL} {checkpoint_dir_path}"
+        )
+        return metainfo
+
+    def checkpoint(self, target_dir_path: str, flash_reference_relation: bool = False) -> None:
+        """
+        Save the MetaInfo object to the specified directory.
+
+        Args:
+            target_dir_path (str): The path to the target directory where the MetaInfo will be saved.
+            flash_reference_relation (bool, optional): Whether to include flash reference relation in the saved MetaInfo. Defaults to False.
+        """
+        with self.checkpoint_lock:
+            print(f"{Fore.GREEN}MetaInfo is Refreshed and Saved{Style.RESET_ALL}")
+            if not os.path.exists(target_dir_path):
+                os.makedirs(target_dir_path)
+            now_hierarchy_json = self.to_hierarchy_json(
+                flash_reference_relation=flash_reference_relation
+            )
+            with open(
+                os.path.join(target_dir_path, "project_hierarchy.json"), "w", encoding='utf-8'
+            ) as writer:
+                json.dump(now_hierarchy_json, writer,
+                          indent=2, ensure_ascii=False)
+
+            with open(os.path.join(target_dir_path, "meta-info.json"), "w") as writer:
+                meta = {
+                    "doc_version": self.document_version,
+                    "in_generation_process": self.in_generation_process,
+                    "fake_file_reflection": self.fake_file_reflection,
+                    "jump_files": self.jump_files,
+                    "deleted_items_from_older_meta": self.deleted_items_from_older_meta,
+                }
+                json.dump(meta, writer, indent=2, ensure_ascii=False)
 
     @staticmethod
     def from_project_hierarchy_path(repo_path: str) -> MetaInfo:
@@ -480,6 +541,48 @@ class MetaInfo:
             now_path=[])
         target_meta_info.target_repo_hierarchical_tree.calculate_depth()
         return target_meta_info
+
+    def to_hierarchy_json(self, flash_reference_relation: bool = False) -> Dict[str, List[Dict[str, Any]]]:
+        """
+        Convert the document metadata to a hierarchical JSON representation.
+
+        Args:
+            flash_reference_relation (bool): If True, the latest bidirectional reference relations will be written back to the meta file.
+
+        Returns:
+            dict: A dictionary representing the hierarchical JSON structure of the document metadata.
+        """
+        hierachy_json = {}
+        file_item_list = self.get_all_files()
+        for file_item in file_item_list:
+            file_hierarchy_content = []
+
+            def walk_file(now_obj: DocItem):
+                nonlocal file_hierarchy_content, flash_reference_relation
+                temp_json_obj = now_obj.content
+                temp_json_obj["name"] = now_obj.item_name
+                temp_json_obj["type"] = now_obj.item_type.to_str()
+                temp_json_obj["md_content"] = now_obj.md_content
+                temp_json_obj["item_status"] = now_obj.item_status.name
+
+                if flash_reference_relation:
+                    temp_json_obj["who_reference_me"] = [cont.get_full_name(
+                        strict=True) for cont in now_obj.who_reference_me]
+                    temp_json_obj["reference_who"] = [cont.get_full_name(
+                        strict=True) for cont in now_obj.reference_who]
+                    temp_json_obj["special_reference_type"] = now_obj.special_reference_type
+                else:
+                    temp_json_obj["who_reference_me"] = now_obj.who_reference_me_name_list
+                    temp_json_obj["reference_who"] = now_obj.reference_who_name_list
+                file_hierarchy_content.append(temp_json_obj)
+
+                for _, child in now_obj.children.items():
+                    walk_file(child)
+
+            for _, child in file_item.children.items():
+                walk_file(child)
+            hierachy_json[file_item.get_full_name()] = file_hierarchy_content
+        return hierachy_json
 
     @staticmethod
     def from_project_hierarchy_path(repo_path: str) -> MetaInfo:
