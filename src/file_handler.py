@@ -121,7 +121,7 @@ class FileHandler:
 
         return current_version, previous_version
 
-    def get_end_lineno(self, node):
+    def get_end_lineno(self, node) -> int:
         """
         Get the end line number of a given node.
 
@@ -156,7 +156,7 @@ class FileHandler:
             child.parent = node
             self.add_parent_references(child, node)
 
-    def get_functions_and_classes(self, code_content):
+    def get_functions_and_classes(self, code_content) -> List[tuple]:
         """
         Retrieves all functions, classes, their parameters (if any), and their hierarchical relationships.
         Output Examples: [('FunctionDef', 'AI_give_params', 86, 95, None, ['param1', 'param2']), ('ClassDef', 'PipelineEngine', 97, 104, None, []), ('FunctionDef', 'get_all_pys', 99, 104, 'PipelineEngine', ['param1'])]

@@ -87,7 +87,7 @@ class DiffDetector:
 
         return changed_lines
 
-    def identify_changes_in_structure(self, changed_lines, structures):
+    def identify_changes_in_structure(self, changed_lines: Dict[str, List[tuple]], structures: List[tuple]) -> Dict[str, set]:
         """
         Identify the structure of the function or class where changes have occurred: Traverse all changed lines, for each line, it checks whether this line is between the start line and the end line of a structure (function or class).
         If so, then this structure is considered to have changed, and its name and the name of the parent structure are added to the corresponding set in the result dictionary changes_in_structures (depending on whether this line is added or deleted).
