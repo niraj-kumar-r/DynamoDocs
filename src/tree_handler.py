@@ -4,6 +4,7 @@ from enum import Enum, unique, auto
 import threading
 from typing import Any, Dict, List, Optional
 from colorama import Fore, Style
+from prettytable import PrettyTable
 from tqdm import tqdm
 from functools import partial
 import jedi
@@ -420,6 +421,21 @@ class MetaInfo:
                     "deleted_items_from_older_meta": self.deleted_items_from_older_meta,
                 }
                 json.dump(meta, writer, indent=2, ensure_ascii=False)
+
+    def print_task_list(self, task_dict: Dict[int, Task]):
+        task_table = PrettyTable(
+            ["task_id", "Doc Generation Reason", "Path", "dependency"])
+        for task_id, task_info in task_dict.items():
+            remain_str = "None"
+            if task_info.dependencies != []:
+
+                remain_str = ",".join([str(d_task.task_id)
+                                      for d_task in task_info.dependencies])
+                if len(remain_str) > 20:
+                    remain_str = remain_str[:8] + "..." + remain_str[-8:]
+            task_table.add_row([task_id, task_info.extra_info.item_status.name,
+                               task_info.extra_info.get_full_name(strict=True), remain_str])
+        print(task_table)
 
     @staticmethod
     def from_project_hierarchy_path(repo_path: str) -> MetaInfo:
