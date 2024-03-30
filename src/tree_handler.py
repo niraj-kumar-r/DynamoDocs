@@ -809,6 +809,86 @@ class MetaInfo:
         )
         return task_manager
 
+    def load_doc_from_older_meta(self, older_meta: MetaInfo):
+        logger.info("merge doc from an older version of metainfo")
+        root_item = self.target_repo_hierarchical_tree
+        deleted_items = []
+
+        def find_item(now_item: DocItem) -> Optional[DocItem]:
+            """
+            Find an item in the new version of meta based on its original item.
+
+            Args:
+                now_item (DocItem): The original item to be found in the new version of meta.
+
+            Returns:
+                Optional[DocItem]: The corresponding item in the new version of meta if found, otherwise None.
+            """
+            nonlocal root_item
+            if now_item.parent == None:
+                return root_item
+            father_find_result = find_item(now_item.parent)
+            if not father_find_result:
+                return None
+            real_name = None
+            for child_real_name, temp_item in now_item.parent.children.items():
+                if temp_item == now_item:
+                    real_name = child_real_name
+                    break
+            assert real_name != None
+            if real_name in father_find_result.children.keys():
+                result_item = father_find_result.children[real_name]
+                return result_item
+            return None
+
+        def travel(now_older_item: DocItem):
+            result_item = find_item(now_older_item)
+            if not result_item:
+                deleted_items.append(
+                    [now_older_item.get_full_name(), now_older_item.item_type.name])
+                return
+            result_item.md_content = now_older_item.md_content
+            result_item.item_status = now_older_item.item_status
+            if "code_content" in now_older_item.content.keys():
+                assert "code_content" in result_item.content.keys()
+                if (
+                    now_older_item.content["code_content"]
+                    != result_item.content["code_content"]
+                ):
+                    result_item.item_status = DocItemStatus.doc_code_changed
+
+            for _, child in now_older_item.children.items():
+                travel(child)
+
+        travel(older_meta.target_repo_hierarchical_tree)
+
+        self.parse_reference()
+
+        def travel2(now_older_item: DocItem):
+            result_item = find_item(now_older_item)
+            if not result_item:
+                return
+            new_reference_names = [
+                name.get_full_name(strict=True) for name in result_item.who_reference_me
+            ]
+            old_reference_names = now_older_item.who_reference_me_name_list
+
+            if not (set(new_reference_names) == set(old_reference_names)) and (
+                result_item.item_status == DocItemStatus.doc_upto_date
+            ):
+                if set(new_reference_names) <= set(
+                    old_reference_names
+                ):
+                    result_item.item_status = DocItemStatus.doc_has_no_referencer
+                else:
+                    result_item.item_status = DocItemStatus.doc_has_new_referencer
+            for _, child in now_older_item.children.items():
+                travel2(child)
+
+        travel2(older_meta.target_repo_hierarchical_tree)
+
+        self.deleted_items_from_older_meta = deleted_items
+
 
 if __name__ == "__main__":
     repo_path = "/home/niraj/stuff/coding/projects/DynamoDocs"
