@@ -4,8 +4,8 @@ import itertools
 from colorama import Fore, Style
 from typing import List, Dict
 
-from src.config import CONFIG
-from src.mylogger import logger
+from dynamodocs.config import CONFIG
+from dynamodocs.mylogger import logger
 
 latest_verison_substring = "_latest_version.py"
 

@@ -7,10 +7,10 @@ from colorama import Fore, Style
 from typing import List, Dict, Optional, Any
 
 
-from src.config import CONFIG
-from src.mylogger import logger
-from src.utils.gitignore_checker import GitignoreChecker
-from src.utils.meta_info_utils import latest_verison_substring
+from dynamodocs.config import CONFIG
+from dynamodocs.mylogger import logger
+from dynamodocs.utils.gitignore_checker import GitignoreChecker
+from dynamodocs.utils.meta_info_utils import latest_verison_substring
 
 
 class FileHandler:

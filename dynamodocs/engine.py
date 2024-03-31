@@ -9,10 +9,10 @@ import inspect
 from collections import defaultdict
 from colorama import Fore, Style
 
-from src.mylogger import logger
-from src.prompt import SYSTEM_PROMPT, USER_PROMPT
-from src.tree_handler import DocItem
-from src.file_handler import FileHandler
+from dynamodocs.mylogger import logger
+from dynamodocs.prompt import SYSTEM_PROMPT, USER_PROMPT
+from dynamodocs.tree_handler import DocItem
+from dynamodocs.file_handler import FileHandler
 
 
 class ContextLengthExceededError(Exception):
@@ -172,6 +172,14 @@ class ChatEngine:
             self.num_tokens_from_string(system_prompt) +
             self.num_tokens_from_string(user_prompt)
         )
+
+        if (total_tokens > max_tokens):
+            logger.error(
+                f"Total tokens ({total_tokens}) exceed the maximum tokens ({max_tokens}).")
+        else:
+            logger.info(
+                f"Total tokens ({total_tokens})."
+            )
 
         attempt = 0
         # while attempt < max_attempts:

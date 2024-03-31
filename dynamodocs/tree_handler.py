@@ -11,11 +11,11 @@ import jedi
 import os
 import json
 
-from src.config import CONFIG
-from src.mylogger import logger
-from src.file_handler import FileHandler
-from src.utils.meta_info_utils import latest_verison_substring
-from src.threads import TaskManager, Task
+from dynamodocs.config import CONFIG
+from dynamodocs.mylogger import logger
+from dynamodocs.file_handler import FileHandler
+from dynamodocs.utils.meta_info_utils import latest_verison_substring
+from dynamodocs.threads import TaskManager, Task
 
 
 @unique

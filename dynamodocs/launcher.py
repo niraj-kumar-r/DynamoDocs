@@ -5,6 +5,7 @@ import json
 import json
 import git
 import itertools
+import shutil
 from tqdm import tqdm
 from typing import List
 from functools import partial
@@ -14,15 +15,15 @@ from concurrent.futures import ThreadPoolExecutor
 from colorama import Fore, Style
 import time
 
-from src.file_handler import FileHandler
-from src.utils.meta_info_utils import latest_verison_substring, make_fake_files, delete_fake_files
-from src.diff_detector import DiffDetector
-from src.project_manager import ProjectManager
-from src.engine import ChatEngine
-from src.tree_handler import MetaInfo, DocItem, DocItemStatus
-from src.mylogger import logger
-from src.config import CONFIG
-from src.threads import worker
+from dynamodocs.file_handler import FileHandler
+from dynamodocs.utils.meta_info_utils import latest_verison_substring, make_fake_files, delete_fake_files
+from dynamodocs.diff_detector import DiffDetector
+from dynamodocs.project_manager import ProjectManager
+from dynamodocs.engine import ChatEngine
+from dynamodocs.tree_handler import MetaInfo, DocItem, DocItemStatus
+from dynamodocs.mylogger import logger
+from dynamodocs.config import CONFIG
+from dynamodocs.threads import worker
 
 
 def load_whitelist():
@@ -39,13 +40,29 @@ def load_whitelist():
 
 
 class Runner:
-    def __init__(self):
+    def __init__(self, clear: bool = False):
         self.project_manager = ProjectManager(
             repo_path=CONFIG["repo_path"], project_hierarchy=CONFIG["project_hierarchy"]
         )
         self.diff_detector = DiffDetector(repo_path=CONFIG["repo_path"])
         print(self.diff_detector.repo_path)
         self.chat_engine = ChatEngine(CONFIG=CONFIG)
+
+        if (clear):
+            if os.path.exists(
+                os.path.join(CONFIG["repo_path"],
+                             CONFIG["project_hierarchy"])
+            ):
+                shutil.rmtree(
+                    os.path.join(CONFIG["repo_path"],
+                                 CONFIG["project_hierarchy"])
+                )
+            if os.path.exists(
+                os.path.join(CONFIG["repo_path"],
+                             CONFIG["Markdown_Docs_folder"])):
+                shutil.rmtree(
+                    os.path.join(CONFIG["repo_path"],
+                                 CONFIG["Markdown_Docs_folder"]))
 
         if not os.path.exists(
             os.path.join(CONFIG["repo_path"], CONFIG["project_hierarchy"])
@@ -472,7 +489,8 @@ class Runner:
         current_objects = file_handler.generate_file_structure(
             file_handler.file_path)
 
-        current_info_dict = {obj["name"]: obj for obj in current_objects.values()}
+        current_info_dict = {obj["name"]
+            : obj for obj in current_objects.values()}
 
         for current_obj_name, current_obj_info in current_info_dict.items():
             if current_obj_name in file_dict:

@@ -5,8 +5,8 @@ import subprocess
 from colorama import Fore, Style
 from typing import List, Dict, Any, Optional
 
-from src.config import CONFIG
-from src.file_handler import FileHandler
+from dynamodocs.config import CONFIG
+from dynamodocs.file_handler import FileHandler
 
 
 class DiffDetector:
