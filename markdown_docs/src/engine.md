@@ -13,7 +13,8 @@ src/engine.py/build_path_tree/tree_to_string - [DocItemType._sub_function] :
 documentation to be generated
 ***
 ## ClassDef ChatEngine
-Doc is waiting to be generated...
+src/engine.py/ChatEngine - [DocItemType._class] : 
+documentation to be generated
 ### FunctionDef __init__(self, CONFIG)
 src/engine.py/ChatEngine/__init__ - [DocItemType._class_method] : 
 documentation to be generated
