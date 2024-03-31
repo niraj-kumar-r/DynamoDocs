@@ -547,7 +547,7 @@ class MetaInfo:
                         now_item.item_type = DocItemType._function
                         if now_item.parent.item_type == DocItemType._class:
                             now_item.item_type = DocItemType._class_method
-                        elif now_item.parent.item_type in [DocItemType._function, DocItemType._sub_function]:
+                        elif now_item.parent.item_type in [DocItemType._function, DocItemType._sub_function, DocItemType._class_method]:
                             now_item.item_type = DocItemType._sub_function
                 for _, child in now_item.children.items():
                     change_items(child)
