@@ -24,11 +24,11 @@ documentation to be generated
 src/__main__.py/Runner/markdown_refresh - [DocItemType._class_method] : 
 documentation to be generated
 #### FunctionDef recursive_check(doc_item)
-src/__main__.py/Runner/markdown_refresh/recursive_check - [DocItemType._function] : 
+src/__main__.py/Runner/markdown_refresh/recursive_check - [DocItemType._sub_function] : 
 documentation to be generated
 ***
 #### FunctionDef to_markdown(item, now_level)
-src/__main__.py/Runner/markdown_refresh/to_markdown - [DocItemType._function] : 
+src/__main__.py/Runner/markdown_refresh/to_markdown - [DocItemType._sub_function] : 
 documentation to be generated
 ***
 ***

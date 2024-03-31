@@ -55,7 +55,7 @@ documentation to be generated
 src/tree_handler.py/DocItem/print_recursive - [DocItemType._class_method] : 
 documentation to be generated
 #### FunctionDef print_indent(indent)
-src/tree_handler.py/DocItem/print_recursive/print_indent - [DocItemType._function] : 
+src/tree_handler.py/DocItem/print_recursive/print_indent - [DocItemType._sub_function] : 
 documentation to be generated
 ***
 ***
@@ -89,11 +89,11 @@ documentation to be generated
 src/tree_handler.py/MetaInfo/from_project_hierarchy_json - [DocItemType._class_method] : 
 documentation to be generated
 #### FunctionDef change_items(now_item)
-src/tree_handler.py/MetaInfo/from_project_hierarchy_json/change_items - [DocItemType._function] : 
+src/tree_handler.py/MetaInfo/from_project_hierarchy_json/change_items - [DocItemType._sub_function] : 
 documentation to be generated
 ***
 #### FunctionDef code_contain(item, other_item)
-src/tree_handler.py/MetaInfo/from_project_hierarchy_json/code_contain - [DocItemType._function] : 
+src/tree_handler.py/MetaInfo/from_project_hierarchy_json/code_contain - [DocItemType._sub_function] : 
 documentation to be generated
 ***
 ***
@@ -101,7 +101,7 @@ documentation to be generated
 src/tree_handler.py/MetaInfo/to_hierarchy_json - [DocItemType._class_method] : 
 documentation to be generated
 #### FunctionDef walk_file(now_obj)
-src/tree_handler.py/MetaInfo/to_hierarchy_json/walk_file - [DocItemType._function] : 
+src/tree_handler.py/MetaInfo/to_hierarchy_json/walk_file - [DocItemType._sub_function] : 
 documentation to be generated
 ***
 ***
@@ -113,7 +113,7 @@ documentation to be generated
 src/tree_handler.py/MetaInfo/get_all_files - [DocItemType._class_method] : 
 documentation to be generated
 #### FunctionDef walk_tree(now_node)
-src/tree_handler.py/MetaInfo/get_all_files/walk_tree - [DocItemType._function] : 
+src/tree_handler.py/MetaInfo/get_all_files/walk_tree - [DocItemType._sub_function] : 
 documentation to be generated
 ***
 ***
@@ -125,7 +125,7 @@ documentation to be generated
 src/tree_handler.py/MetaInfo/parse_reference - [DocItemType._class_method] : 
 documentation to be generated
 #### FunctionDef walk_file(now_obj)
-src/tree_handler.py/MetaInfo/parse_reference/walk_file - [DocItemType._function] : 
+src/tree_handler.py/MetaInfo/parse_reference/walk_file - [DocItemType._sub_function] : 
 documentation to be generated
 ***
 ***
@@ -133,7 +133,7 @@ documentation to be generated
 src/tree_handler.py/MetaInfo/get_task_manager - [DocItemType._class_method] : 
 documentation to be generated
 #### FunctionDef in_white_list(item)
-src/tree_handler.py/MetaInfo/get_task_manager/in_white_list - [DocItemType._function] : 
+src/tree_handler.py/MetaInfo/get_task_manager/in_white_list - [DocItemType._sub_function] : 
 documentation to be generated
 ***
 ***
@@ -145,15 +145,15 @@ documentation to be generated
 src/tree_handler.py/MetaInfo/load_doc_from_older_meta - [DocItemType._class_method] : 
 documentation to be generated
 #### FunctionDef find_item(now_item)
-src/tree_handler.py/MetaInfo/load_doc_from_older_meta/find_item - [DocItemType._function] : 
+src/tree_handler.py/MetaInfo/load_doc_from_older_meta/find_item - [DocItemType._sub_function] : 
 documentation to be generated
 ***
 #### FunctionDef travel(now_older_item)
-src/tree_handler.py/MetaInfo/load_doc_from_older_meta/travel - [DocItemType._function] : 
+src/tree_handler.py/MetaInfo/load_doc_from_older_meta/travel - [DocItemType._sub_function] : 
 documentation to be generated
 ***
 #### FunctionDef travel2(now_older_item)
-src/tree_handler.py/MetaInfo/load_doc_from_older_meta/travel2 - [DocItemType._function] : 
+src/tree_handler.py/MetaInfo/load_doc_from_older_meta/travel2 - [DocItemType._sub_function] : 
 documentation to be generated
 ***
 ***

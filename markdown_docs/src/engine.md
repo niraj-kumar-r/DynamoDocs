@@ -27,15 +27,15 @@ documentation to be generated
 src/engine.py/ChatEngine/generate_doc - [DocItemType._class_method] : 
 documentation to be generated
 #### FunctionDef get_referenced_prompt(doc_item)
-src/engine.py/ChatEngine/generate_doc/get_referenced_prompt - [DocItemType._function] : 
+src/engine.py/ChatEngine/generate_doc/get_referenced_prompt - [DocItemType._sub_function] : 
 documentation to be generated
 ***
 #### FunctionDef get_referencer_prompt(doc_item)
-src/engine.py/ChatEngine/generate_doc/get_referencer_prompt - [DocItemType._function] : 
+src/engine.py/ChatEngine/generate_doc/get_referencer_prompt - [DocItemType._sub_function] : 
 documentation to be generated
 ***
 #### FunctionDef get_relationship_description(referencer_content, reference_letter)
-src/engine.py/ChatEngine/generate_doc/get_relationship_description - [DocItemType._function] : 
+src/engine.py/ChatEngine/generate_doc/get_relationship_description - [DocItemType._sub_function] : 
 documentation to be generated
 ***
 ***

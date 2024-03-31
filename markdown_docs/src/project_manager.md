@@ -9,7 +9,7 @@ documentation to be generated
 src/project_manager.py/ProjectManager/get_project_structure - [DocItemType._class_method] : 
 documentation to be generated
 #### FunctionDef walk_dir(root, prefix)
-src/project_manager.py/ProjectManager/get_project_structure/walk_dir - [DocItemType._function] : 
+src/project_manager.py/ProjectManager/get_project_structure/walk_dir - [DocItemType._sub_function] : 
 documentation to be generated
 ***
 ***
