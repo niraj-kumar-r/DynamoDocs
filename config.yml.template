@@ -1,27 +1,9 @@
 repo_path: "./"
 project_hierarchy: .project_hierarchy
 max_thread_count: 10
-max_document_tokens: 1024
+max_document_tokens: 5000
 ignore_list: []
 whitelist_path: #if whitelist_path is not none, We only generate docs on whitelist
 Markdown_Docs_folder: "markdown_docs"
-
-api_keys:
-    model:
-        - name: "gpt-3.5-turbo"
-          api_key: "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"
-          base_url: "https://api.openai.com"
-        # Add more models if needed
-
-default_completion_kwargs:
-    temperature: 0.7
-    model: "gpt-3.5-turbo"
-    request_timeout: 60
-
-chat_completion:
-    openai_api_key:
-        api_key: "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"
-        base_url: "https://api.openai.com"
-
-openai:
-    api_key: "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"
+ollama_host: "http://localhost:11434"
+ollama_model: "codellama"
