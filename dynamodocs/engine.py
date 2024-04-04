@@ -165,9 +165,6 @@ class ChatEngine:
 
         user_prompt = USER_PROMPT
 
-        # model = self.config["default_completion_kwargs"]["model"]
-        client = Client(host=self.config["ollama_host"])
-
         total_tokens = (
             self.num_tokens_from_string(system_prompt) +
             self.num_tokens_from_string(user_prompt)
@@ -181,27 +178,53 @@ class ChatEngine:
                 f"Total tokens ({total_tokens})."
             )
 
-        attempt = 0
         try:
-            response: ChatResponse = client.chat(model=self.config["ollama_model"], messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt},
-            ],
-            stream=False)
-
-            return response.message
-        
-        except RequestError as e:
-            return {
-                "content": f"{doc_item.get_full_name()} - [{doc_item.item_type}] : \ndocumentation to be generated"
-            }
-
-        except ResponseError as e:
-            return {
-                "content": f"{doc_item.get_full_name()} - [{doc_item.item_type}] : \ndocumentation to be generated"
-            }
-        
+            client = Client(host=self.config["ollama_host"], timeout=30)
         except:
+            logger.Error("Failed to connect to the Ollama server.")
+            return {
+                "content": f"{doc_item.get_full_name()} - [{doc_item.item_type}] : \ndocumentation to be generated"
+            }
+
+        attempt = 0
+        while attempt < max_attempts:
+            try:
+                response: ChatResponse = client.chat(model=self.config["ollama_model"], messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt},
+                ],
+                    stream=False,)
+
+                if response.message is None:
+                    attempt += 1
+                    continue
+
+                return response.message
+
+            except RequestError as e:
+                logger.error(
+                    f"Request error: {e}. Attempt {attempt + 1} of {max_attempts}")
+                # Retry after 7 seconds
+                time.sleep(7)
+                attempt += 1
+
+            except ResponseError as e:
+                logger.error(
+                    f"Response error: {e}. Attempt {attempt + 1} of {max_attempts}")
+                # Retry after 7 seconds
+                time.sleep(7)
+                attempt += 1
+
+            except:
+                logger.error(
+                    f"An unknown error occurred. Attempt {attempt + 1} of {max_attempts}")
+                # Retry after 7 seconds
+                time.sleep(7)
+                attempt += 1
+
+        else:
+            logger.error(
+                f"Failed to generate documentation for {doc_item.get_full_name()}.")
             return {
                 "content": f"{doc_item.get_full_name()} - [{doc_item.item_type}] : \ndocumentation to be generated"
             }
