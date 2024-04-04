@@ -123,9 +123,9 @@ class Runner:
                     doc_item=doc_item,
                     file_handler=file_handler,
                 )
-                print(
-                    f" -- Document generated successfully, appending {response_message["content"]}")
                 doc_item.md_content.append(response_message["content"])
+                print(
+                    f" -- Document successfully appended: {doc_item.get_full_name()}")
                 doc_item.item_status = DocItemStatus.doc_upto_date
                 self.meta_info.checkpoint(
                     target_dir_path=os.path.join(
@@ -489,8 +489,7 @@ class Runner:
         current_objects = file_handler.generate_file_structure(
             file_handler.file_path)
 
-        current_info_dict = {obj["name"]
-            : obj for obj in current_objects.values()}
+        current_info_dict = {obj["name"]                             : obj for obj in current_objects.values()}
 
         for current_obj_name, current_obj_info in current_info_dict.items():
             if current_obj_name in file_dict:

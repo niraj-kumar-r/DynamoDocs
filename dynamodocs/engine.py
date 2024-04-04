@@ -120,7 +120,7 @@ class ChatEngine:
                 return ""\
 
         max_tokens = self.config.get("max_document_tokens", 1024) or 1024
-        max_attempts = 3  # Set the maximum number of attempts
+        max_attempts = 2  # Set the maximum number of attempts
 
         code_type_tell = "Class" if code_type == "ClassDef" else "Function"
         parameters_or_attribute = (
@@ -177,8 +177,10 @@ class ChatEngine:
 
         try:
             client = Client(host=self.config["ollama_host"], timeout=30)
+        # TODO : check if the connection is successful with the Ollama server
+        # Make a check connection function for this as below would not work
         except Exception as e:
-            logger.Error("Failed to connect to the Ollama server.")
+            logger.error(f"Failed to connect to Ollama: {e}")
             return {
                 "content": f"{doc_item.get_full_name()} - [{doc_item.item_type}] : \ndocumentation to be generated"
             }
@@ -212,7 +214,7 @@ class ChatEngine:
 
             except Exception as e:
                 logger.warning(
-                    f"An unknown error occurred. Attempt {attempt + 1} of {max_attempts}")
+                    f"An error occurred. Attempt {attempt + 1} of {max_attempts}")
                 # logger.warning(traceback.format_exc())
                 time.sleep(3)
                 attempt += 1
