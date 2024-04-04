@@ -183,21 +183,23 @@ class ChatEngine:
 
         attempt = 0
         try:
-            response :ChatResponse  = client.chat(model='llama2', messages=[
+            response: ChatResponse = client.chat(model=self.config["ollama_model"], messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt},
-            ], stream=False)
+            ],
+            stream=False)
 
             return response.message
+        
         except RequestError as e:
             return {
                 "content": f"{doc_item.get_full_name()} - [{doc_item.item_type}] : \ndocumentation to be generated"
-            }    
+            }
+
         except ResponseError as e:
             return {
                 "content": f"{doc_item.get_full_name()} - [{doc_item.item_type}] : \ndocumentation to be generated"
-            }      
-            
+            }
         # while attempt < max_attempts:
 
         #     try:
@@ -211,10 +213,10 @@ class ChatEngine:
         #             timeout=60,
         #         )
 
-        #         messages = [
-        #             {"role": "system", "content": system_prompt},
-        #             {"role": "user", "content": user_prompt},
-        #         ]
+            # messages = [
+            #     {"role": "system", "content": system_prompt},
+            #     {"role": "user", "content": user_prompt},
+            # ]
 
         #         response = client.chat.completions.create(
         #             model=model,
@@ -251,6 +253,3 @@ class ChatEngine:
         #         attempt += 1
         #         if attempt == max_attempts:
         #             return None
-        return {
-            "content": f"{doc_item.get_full_name()} - [{doc_item.item_type}] : \ndocumentation to be generated"
-        }
