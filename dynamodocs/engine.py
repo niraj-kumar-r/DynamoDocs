@@ -177,7 +177,7 @@ class ChatEngine:
 
         try:
             client = Client(host=self.config["ollama_host"], timeout=30)
-        except:
+        except Exception as e:
             logger.Error("Failed to connect to the Ollama server.")
             return {
                 "content": f"{doc_item.get_full_name()} - [{doc_item.item_type}] : \ndocumentation to be generated"
@@ -213,7 +213,7 @@ class ChatEngine:
             except Exception as e:
                 logger.warning(
                     f"An unknown error occurred. Attempt {attempt + 1} of {max_attempts}")
-                logger.warning(traceback.format_exc())
+                # logger.warning(traceback.format_exc())
                 time.sleep(3)
                 attempt += 1
 
