@@ -123,7 +123,7 @@ class ChatEngine:
                 return ""\
 
         max_tokens = self.config.get("max_document_tokens", 1024) or 1024
-        max_attempts = 5  # Set the maximum number of attempts
+        max_attempts = 3  # Set the maximum number of attempts
 
         code_type_tell = "Class" if code_type == "ClassDef" else "Function"
         parameters_or_attribute = (
@@ -205,21 +205,21 @@ class ChatEngine:
                 logger.error(
                     f"Request error: {e}. Attempt {attempt + 1} of {max_attempts}")
                 # Retry after 7 seconds
-                time.sleep(7)
+                time.sleep(3)
                 attempt += 1
 
             except ResponseError as e:
                 logger.error(
                     f"Response error: {e}. Attempt {attempt + 1} of {max_attempts}")
                 # Retry after 7 seconds
-                time.sleep(7)
+                time.sleep(3)
                 attempt += 1
 
             except:
                 logger.error(
                     f"An unknown error occurred. Attempt {attempt + 1} of {max_attempts}")
                 # Retry after 7 seconds
-                time.sleep(7)
+                time.sleep(3)
                 attempt += 1
 
         else:
