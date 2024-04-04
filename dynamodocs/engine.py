@@ -1,11 +1,8 @@
 import os
-import json
-import sys
 import tiktoken
 import time
-import inspect
+import traceback
 from collections import defaultdict
-from colorama import Fore, Style
 from ollama import Client, ResponseError, RequestError, ChatResponse
 
 from dynamodocs.mylogger import logger
@@ -202,23 +199,21 @@ class ChatEngine:
                 return response.message
 
             except RequestError as e:
-                logger.error(
+                logger.warning(
                     f"Request error: {e}. Attempt {attempt + 1} of {max_attempts}")
-                # Retry after 7 seconds
                 time.sleep(3)
                 attempt += 1
 
             except ResponseError as e:
-                logger.error(
+                logger.warning(
                     f"Response error: {e}. Attempt {attempt + 1} of {max_attempts}")
-                # Retry after 7 seconds
                 time.sleep(3)
                 attempt += 1
 
-            except:
-                logger.error(
+            except Exception as e:
+                logger.warning(
                     f"An unknown error occurred. Attempt {attempt + 1} of {max_attempts}")
-                # Retry after 7 seconds
+                logger.warning(traceback.format_exc())
                 time.sleep(3)
                 attempt += 1
 
