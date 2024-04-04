@@ -200,6 +200,11 @@ class ChatEngine:
             return {
                 "content": f"{doc_item.get_full_name()} - [{doc_item.item_type}] : \ndocumentation to be generated"
             }
+        
+        except:
+            return {
+                "content": f"{doc_item.get_full_name()} - [{doc_item.item_type}] : \ndocumentation to be generated"
+            }
         # while attempt < max_attempts:
 
         #     try:
