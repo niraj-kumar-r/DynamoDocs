@@ -174,7 +174,7 @@ class ChatEngine:
         )
 
         if (total_tokens > max_tokens):
-            logger.error(
+            logger.warning(
                 f"Total tokens ({total_tokens}) exceed the maximum tokens ({max_tokens}).")
         else:
             logger.info(
