@@ -1,13 +1,12 @@
 import os
 import json
 import sys
-from openai import OpenAI
-from openai import APIConnectionError
 import tiktoken
 import time
 import inspect
 from collections import defaultdict
 from colorama import Fore, Style
+from ollama import Client, ResponseError, RequestError, ChatResponse
 
 from dynamodocs.mylogger import logger
 from dynamodocs.prompt import SYSTEM_PROMPT, USER_PROMPT
@@ -166,7 +165,8 @@ class ChatEngine:
 
         user_prompt = USER_PROMPT
 
-        model = self.config["default_completion_kwargs"]["model"]
+        # model = self.config["default_completion_kwargs"]["model"]
+        client = Client(host=self.config["ollama_host"])
 
         total_tokens = (
             self.num_tokens_from_string(system_prompt) +
@@ -182,6 +182,22 @@ class ChatEngine:
             )
 
         attempt = 0
+        try:
+            response :ChatResponse  = client.chat(model='llama2', messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": user_prompt},
+            ], stream=False)
+
+            return response.message
+        except RequestError as e:
+            return {
+                "content": f"{doc_item.get_full_name()} - [{doc_item.item_type}] : \ndocumentation to be generated"
+            }    
+        except ResponseError as e:
+            return {
+                "content": f"{doc_item.get_full_name()} - [{doc_item.item_type}] : \ndocumentation to be generated"
+            }      
+            
         # while attempt < max_attempts:
 
         #     try:
