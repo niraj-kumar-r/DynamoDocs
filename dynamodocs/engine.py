@@ -145,19 +145,19 @@ class ChatEngine:
         project_structure_prefix = ", and the related hierarchical structure of this project is as follows (The current object is marked with an *):"
 
         system_prompt = SYSTEM_PROMPT.format(
-            combine_ref_situation=combine_ref_situation,
-            file_path=file_path,
             project_structure_prefix=project_structure_prefix,
             project_structure=project_structure,
+            file_path=file_path,
             code_type_tell=code_type_tell,
             code_name=code_name,
             code_content=code_content,
-            have_return_tell=have_return_tell,
-            has_relationship=has_relationship,
             reference_letter=reference_letter,
             referencer_content=referencer_content,
-            parameters_or_attribute=parameters_or_attribute,
+            combine_ref_situation=combine_ref_situation,
             language="English",
+            parameters_or_attribute=parameters_or_attribute,
+            has_relationship=has_relationship,
+            have_return_tell=have_return_tell,
         )
 
         user_prompt = USER_PROMPT
