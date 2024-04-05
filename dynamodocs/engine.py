@@ -201,11 +201,11 @@ class ChatEngine:
                 
                 print(response)
 
-                if response.message is None:
+                if response['message'] is None:
                     attempt += 1
                     continue
 
-                return response.message
+                return response['message']
 
             except RequestError as e:
                 logger.warning(
