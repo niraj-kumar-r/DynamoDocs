@@ -207,13 +207,13 @@ class ChatEngine:
 
             except RequestError as e:
                 logger.warning(
-                    f"Request error: {doc_item.get_full_name()}. Attempt {attempt + 1} of {max_attempts}")
+                    f"Request error:{e.error} {doc_item.get_full_name()}. Attempt {attempt + 1} of {max_attempts}")
                 time.sleep(3)
                 attempt += 1
 
             except ResponseError as e:
                 logger.warning(
-                    f"Response error: {doc_item.get_full_name()}. Attempt {attempt + 1} of {max_attempts}")
+                    f"Response error:{e.error} {doc_item.get_full_name()}. Attempt {attempt + 1} of {max_attempts}")
                 time.sleep(3)
                 attempt += 1
 
