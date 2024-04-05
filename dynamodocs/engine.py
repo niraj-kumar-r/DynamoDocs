@@ -198,6 +198,8 @@ class ChatEngine:
                     {"role": "user", "content": user_prompt},
                 ],
                     stream=False,)
+                
+                print(response)
 
                 if response.message is None:
                     attempt += 1
