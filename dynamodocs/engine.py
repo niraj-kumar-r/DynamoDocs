@@ -162,6 +162,11 @@ class ChatEngine:
 
         user_prompt = USER_PROMPT
 
+        with open("system_prompt.txt", "a") as f:
+            f.write("\n\n\n ========newwwwwwww========\n\n\n")
+            f.write(system_prompt)
+            f.write(user_prompt)
+
         total_tokens = (
             self.num_tokens_from_string(system_prompt) +
             self.num_tokens_from_string(user_prompt)
