@@ -3,6 +3,7 @@ config.yml
 
 *_latest_version.py
 .project_hierarchy
+system_prompt.txt
 
 # vscode settings
 .vscode/
