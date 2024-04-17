@@ -197,7 +197,7 @@ class ChatEngine:
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": user_prompt},
                 ],
-                    stream=False,)
+                    stream=False, keep_alive="60m")
 
                 print(response)
 
