@@ -181,7 +181,7 @@ class ChatEngine:
             )
 
         try:
-            client = Client(host=self.config["ollama_host"])
+            client = Client(host=self.config["ollama_host"], timeout=60*60)
         # TODO : check if the connection is successful with the Ollama server
         # Make a check connection function for this as below would not work
         except Exception as e:
@@ -198,7 +198,7 @@ class ChatEngine:
                     {"role": "user", "content": user_prompt},
                 ],
                     stream=False,)
-                
+
                 print(response)
 
                 if response['message'] is None:
