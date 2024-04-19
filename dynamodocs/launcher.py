@@ -446,6 +446,7 @@ class Runner:
             )
             file_handler.write_file(
                 os.path.join(
+                    self.project_manager.repo_path,
                     CONFIG["Markdown_Docs_folder"],
                     file_handler.file_path.replace(".py", ".md"),
                 ),
