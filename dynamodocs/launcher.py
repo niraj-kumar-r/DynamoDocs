@@ -25,7 +25,6 @@ from dynamodocs.tree_handler import MetaInfo, DocItem, DocItemStatus
 from dynamodocs.mylogger import logger
 from dynamodocs.config import CONFIG
 from dynamodocs.threads import worker
-from dynamodocs.prompt import SYSTEM_PROMPT, USER_PROMPT
 
 
 def load_whitelist():
