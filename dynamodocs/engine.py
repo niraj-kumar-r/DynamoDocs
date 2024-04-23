@@ -166,7 +166,11 @@ class ChatEngine:
 
         # used for debugging purposes only
 
-        with open("system_prompt.txt", "a") as f:
+        with open(
+                os.path.join(
+                    self.config["repo_path"],
+                    "AI_requests.txt"
+                ), "a") as f:
             f.write("\n\n\n ========newwwwwwww========\n\n\n")
             f.write(system_prompt)
             f.write(user_prompt)
