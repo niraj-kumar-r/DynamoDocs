@@ -188,6 +188,11 @@ class Runner:
                     before_task_len - len(task_manager.task_dict)} documents"
             )
 
+            self.markdown_refresh()
+            delete_fake_files()
+
+            logger.info(f"Successfully wrote markdown documents")
+
         except BaseException as e:
             logger.info(
                 f"Finding an error as {e}, {
@@ -386,7 +391,7 @@ class Runner:
         json_data[file_handler.file_path] = file_dict
         with open(self.project_manager.project_hierarchy, "w", encoding="utf-8") as f:
             json.dump(json_data, f, indent=4, ensure_ascii=False)
-        logger.info(f"已将新增文件 {file_handler.file_path} 的结构信息写入json文件。")
+        logger.info(f"{file_handler.file_path}")
         markdown = file_handler.convert_to_markdown_file(
             file_path=file_handler.file_path
         )
