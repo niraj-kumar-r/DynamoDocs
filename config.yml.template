@@ -7,3 +7,5 @@ whitelist_path: #if whitelist_path is not none, We only generate docs on whiteli
 Markdown_Docs_folder: "markdown_docs"
 ollama_host: "http://localhost:11434"
 ollama_model: "codellama"
+debug: False
+profile_list: { "dev": "dev_prompt", "test": "high_overview" }
