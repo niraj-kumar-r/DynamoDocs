@@ -48,21 +48,21 @@ class Runner:
         print(self.diff_detector.repo_path)
         self.chat_engine = ChatEngine(CONFIG=CONFIG)
 
-        if (clear):
-            if os.path.exists(
-                os.path.join(CONFIG["repo_path"],
-                             CONFIG["project_hierarchy"])
-            ):
-                shutil.rmtree(
-                    os.path.join(CONFIG["repo_path"],
-                                 CONFIG["project_hierarchy"])
-                )
-            if os.path.exists(
-                os.path.join(CONFIG["repo_path"],
-                             CONFIG["Markdown_Docs_folder"])):
-                shutil.rmtree(
-                    os.path.join(CONFIG["repo_path"],
-                                 CONFIG["Markdown_Docs_folder"]))
+        # if (clear):
+        #     if os.path.exists(
+        #         os.path.join(CONFIG["repo_path"],
+        #                      CONFIG["project_hierarchy"])
+        #     ):
+        #         shutil.rmtree(
+        #             os.path.join(CONFIG["repo_path"],
+        #                          CONFIG["project_hierarchy"])
+        #         )
+        #     if os.path.exists(
+        #         os.path.join(CONFIG["repo_path"],
+        #                      CONFIG["Markdown_Docs_folder"])):
+        #         shutil.rmtree(
+        #             os.path.join(CONFIG["repo_path"],
+        #                          CONFIG["Markdown_Docs_folder"]))
 
         if not os.path.exists(
             os.path.join(CONFIG["repo_path"], CONFIG["project_hierarchy"])
@@ -386,7 +386,7 @@ class Runner:
         json_data[file_handler.file_path] = file_dict
         with open(self.project_manager.project_hierarchy, "w", encoding="utf-8") as f:
             json.dump(json_data, f, indent=4, ensure_ascii=False)
-        logger.info(f"已将新增文件 {file_handler.file_path} 的结构信息写入json文件。")
+        logger.info(f"{file_handler.file_path}")
         markdown = file_handler.convert_to_markdown_file(
             file_path=file_handler.file_path
         )
