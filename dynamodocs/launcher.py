@@ -48,21 +48,21 @@ class Runner:
         print(self.diff_detector.repo_path)
         self.chat_engine = ChatEngine(CONFIG=CONFIG)
 
-        # if (clear):
-        #     if os.path.exists(
-        #         os.path.join(CONFIG["repo_path"],
-        #                      CONFIG["project_hierarchy"])
-        #     ):
-        #         shutil.rmtree(
-        #             os.path.join(CONFIG["repo_path"],
-        #                          CONFIG["project_hierarchy"])
-        #         )
-        #     if os.path.exists(
-        #         os.path.join(CONFIG["repo_path"],
-        #                      CONFIG["Markdown_Docs_folder"])):
-        #         shutil.rmtree(
-        #             os.path.join(CONFIG["repo_path"],
-        #                          CONFIG["Markdown_Docs_folder"]))
+        if (clear):
+            if os.path.exists(
+                os.path.join(CONFIG["repo_path"],
+                             CONFIG["project_hierarchy"])
+            ):
+                shutil.rmtree(
+                    os.path.join(CONFIG["repo_path"],
+                                 CONFIG["project_hierarchy"])
+                )
+            if os.path.exists(
+                os.path.join(CONFIG["repo_path"],
+                             CONFIG["Markdown_Docs_folder"])):
+                shutil.rmtree(
+                    os.path.join(CONFIG["repo_path"],
+                                 CONFIG["Markdown_Docs_folder"]))
 
         if not os.path.exists(
             os.path.join(CONFIG["repo_path"], CONFIG["project_hierarchy"])
