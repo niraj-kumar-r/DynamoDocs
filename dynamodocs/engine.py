@@ -6,7 +6,7 @@ from collections import defaultdict
 from ollama import Client, ResponseError, RequestError, ChatResponse
 
 from dynamodocs.mylogger import logger
-from dynamodocs.prompt import SYSTEM_PROMPT, USER_PROMPT
+# from dynamodocs.prompt import SYSTEM_PROMPT, USER_PROMPT
 from dynamodocs.tree_handler import DocItem
 from dynamodocs.file_handler import FileHandler
 
@@ -53,8 +53,10 @@ class ChatEngine:
     ChatEngine is used to generate the doc of functions or classes.
     """
 
-    def __init__(self, CONFIG):
+    def __init__(self, CONFIG, SYSTEM_PROMPT, USER_PROMPT):
         self.config = CONFIG
+        self.system_prompt = SYSTEM_PROMPT
+        self.user_prompt = USER_PROMPT
 
     def num_tokens_from_string(self, string: str, encoding_name="cl100k_base") -> int:
         """Returns the number of tokens in a text string."""
@@ -144,7 +146,7 @@ class ChatEngine:
 
         project_structure_prefix = ", and the related hierarchical structure of this project is as follows (The current object is marked with an *):"
 
-        system_prompt = SYSTEM_PROMPT.format(
+        system_prompt = self.system_prompt.format(
             project_structure_prefix=project_structure_prefix,
             project_structure=project_structure,
             file_path=file_path,
@@ -160,12 +162,14 @@ class ChatEngine:
             have_return_tell=have_return_tell,
         )
 
-        user_prompt = USER_PROMPT
+        user_prompt = self.user_prompt
 
-        with open("system_prompt.txt", "a") as f:
-            f.write("\n\n\n ========newwwwwwww========\n\n\n")
-            f.write(system_prompt)
-            f.write(user_prompt)
+        # used for debugging purposes only
+        #
+        # with open("system_prompt.txt", "a") as f:
+        #     f.write("\n\n\n ========newwwwwwww========\n\n\n")
+        #     f.write(system_prompt)
+        #     f.write(user_prompt)
 
         total_tokens = (
             self.num_tokens_from_string(system_prompt) +

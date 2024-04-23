@@ -24,6 +24,7 @@ from dynamodocs.tree_handler import MetaInfo, DocItem, DocItemStatus
 from dynamodocs.mylogger import logger
 from dynamodocs.config import CONFIG
 from dynamodocs.threads import worker
+from dynamodocs.prompt import SYSTEM_PROMPT, USER_PROMPT
 
 
 def load_whitelist():
@@ -46,7 +47,8 @@ class Runner:
         )
         self.diff_detector = DiffDetector(repo_path=CONFIG["repo_path"])
         print(self.diff_detector.repo_path)
-        self.chat_engine = ChatEngine(CONFIG=CONFIG)
+        self.chat_engine = ChatEngine(
+            CONFIG=CONFIG, SYSTEM_PROMPT=SYSTEM_PROMPT, USER_PROMPT=USER_PROMPT)
 
         if (clear):
             if os.path.exists(
@@ -495,7 +497,8 @@ class Runner:
         current_objects = file_handler.generate_file_structure(
             file_handler.file_path)
 
-        current_info_dict = {obj["name"]                             : obj for obj in current_objects.values()}
+        current_info_dict = {obj["name"]
+            : obj for obj in current_objects.values()}
 
         for current_obj_name, current_obj_info in current_info_dict.items():
             if current_obj_name in file_dict:
