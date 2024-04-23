@@ -165,15 +165,15 @@ class ChatEngine:
         user_prompt = self.user_prompt
 
         # used for debugging purposes only
-
-        with open(
-                os.path.join(
-                    self.config["repo_path"],
-                    "AI_requests.txt"
-                ), "a") as f:
-            f.write("\n\n\n ========newwwwwwww========\n\n\n")
-            f.write(system_prompt)
-            f.write(user_prompt)
+        if (self.config["debug"]):
+            with open(
+                    os.path.join(
+                        self.config["repo_path"],
+                        "AI_requests.txt"
+                    ), "a") as f:
+                f.write("\n\n\n ========newwwwwwww========\n\n\n")
+                f.write(system_prompt)
+                f.write(user_prompt)
 
         total_tokens = (
             self.num_tokens_from_string(system_prompt) +

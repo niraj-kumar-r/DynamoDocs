@@ -48,7 +48,7 @@ class Runner:
         self.diff_detector = DiffDetector(repo_path=CONFIG["repo_path"])
         print(self.diff_detector.repo_path)
         self.chat_engine = ChatEngine(
-            CONFIG=CONFIG, SYSTEM_PROMPT=SYSTEM_PROMPT, USER_PROMPT=USER_PROMPT)
+            CONFIG=CONFIG, SYSTEM_PROMPT=SYSTEM_PROMPT, USER_PROMPT=USER_PROMPT, )
 
         if (clear):
             if os.path.exists(
