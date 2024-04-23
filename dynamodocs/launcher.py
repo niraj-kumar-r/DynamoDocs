@@ -25,7 +25,6 @@ from dynamodocs.tree_handler import MetaInfo, DocItem, DocItemStatus
 from dynamodocs.mylogger import logger
 from dynamodocs.config import CONFIG
 from dynamodocs.threads import worker
-from dynamodocs.prompt import SYSTEM_PROMPT, USER_PROMPT
 
 
 def load_whitelist():
@@ -42,7 +41,9 @@ def load_whitelist():
 
 
 class Runner:
-    def __init__(self, clear: bool = False, profile: str = "dev"):
+    def __init__(self, clear: bool = False, profile: str = "dev", repo_path: str = None):
+        if repo_path is not None:
+            CONFIG["repo_path"] = repo_path
 
         self.project_manager = ProjectManager(
             repo_path=CONFIG["repo_path"], project_hierarchy=CONFIG["project_hierarchy"]
