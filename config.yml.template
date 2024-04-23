@@ -1,4 +1,5 @@
 repo_path: "./"
+# can be overwritten via cli -rp flag
 project_hierarchy: .project_hierarchy
 max_thread_count: 10
 max_document_tokens: 5000
