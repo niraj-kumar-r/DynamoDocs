@@ -34,4 +34,4 @@ Please note:
 
 """
 
-USER_PROMPT = """Keep in mind that your audience is document readers, so use a deterministic tone to generate precise content and don't let them know you're provided with code snippet and documents. AVOID ANY SPECULATION and inaccurate descriptions! Now, provide the documentation for the target object in {language} in a professional way."""
+USER_PROMPT = """Keep in mind that your audience is testers, so use a deterministic tone to generate precise content and don't let them know you're provided with code snippet and documents. AVOID ANY SPECULATION and inaccurate descriptions! Now, provide the documentation for the target object in {language} in a professional way."""

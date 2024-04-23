@@ -8,3 +8,4 @@ Markdown_Docs_folder: "markdown_docs"
 ollama_host: "http://localhost:11434"
 ollama_model: "codellama"
 debug: False
+profile_list: { "dev": "dev_prompt", "test": "high_overview" }
