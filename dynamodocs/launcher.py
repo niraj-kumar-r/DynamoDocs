@@ -188,6 +188,11 @@ class Runner:
                     before_task_len - len(task_manager.task_dict)} documents"
             )
 
+            self.markdown_refresh()
+            delete_fake_files()
+
+            logger.info(f"Successfully wrote markdown documents")
+
         except BaseException as e:
             logger.info(
                 f"Finding an error as {e}, {
