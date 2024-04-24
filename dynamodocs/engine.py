@@ -166,7 +166,21 @@ class ChatEngine:
             have_return_tell=have_return_tell,
         )
 
-        user_prompt = self.user_prompt
+        user_prompt = self.user_prompt.format(
+            project_structure_prefix=project_structure_prefix,
+            project_structure=project_structure,
+            file_path=file_path,
+            code_type_tell=code_type_tell,
+            code_name=code_name,
+            code_content=code_content,
+            reference_letter=reference_letter,
+            referencer_content=referencer_content,
+            combine_ref_situation=combine_ref_situation,
+            language="English",
+            parameters_or_attribute=parameters_or_attribute,
+            has_relationship=has_relationship,
+            have_return_tell=have_return_tell,
+        )
 
         # used for debugging purposes only
         if (self.config["debug"]):
