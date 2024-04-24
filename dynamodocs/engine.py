@@ -89,8 +89,10 @@ class ChatEngine:
             ]
             for k, reference_item in enumerate(doc_item.reference_who):
                 instance_prompt = (
-                    f"""obj: {reference_item.get_full_name()}\nDocument: \n{reference_item.md_content[-1] if len(reference_item.md_content) > 0 else 'None'}\nRaw code:```\n{
-                        reference_item.content['code_content'] if 'code_content' in reference_item.content.keys() else ''}\n```"""
+                    f"""obj: {reference_item.get_full_name()}\nDocument: \n{
+                        reference_item.md_content[-1] if len(reference_item.md_content) > 0 else 'None'}\n"""
+                    # + f"""Raw code:```\n{
+                    #     reference_item.content['code_content'] if 'code_content' in reference_item.content.keys() else ''}\n```"""
                     + "=" * 10
                 )
                 prompt.append(instance_prompt)
@@ -104,8 +106,10 @@ class ChatEngine:
             ]
             for k, referencer_item in enumerate(doc_item.who_reference_me):
                 instance_prompt = (
-                    f"""obj: {referencer_item.get_full_name()}\nDocument: \n{referencer_item.md_content[-1] if len(referencer_item.md_content) > 0 else 'None'}\nRaw code:```\n{
-                        referencer_item.content['code_content'] if 'code_content' in referencer_item.content.keys() else 'None'}\n```"""
+                    f"""obj: {referencer_item.get_full_name()}\nDocument: \n{
+                        referencer_item.md_content[-1] if len(referencer_item.md_content) > 0 else 'None'}\n"""
+                    # + f"""Raw code:```\n{referencer_item.content['code_content']
+                    #                      if 'code_content' in referencer_item.content.keys() else 'None'}\n```"""
                     + "=" * 10
                 )
                 prompt.append(instance_prompt)
@@ -162,7 +166,21 @@ class ChatEngine:
             have_return_tell=have_return_tell,
         )
 
-        user_prompt = self.user_prompt
+        user_prompt = self.user_prompt.format(
+            project_structure_prefix=project_structure_prefix,
+            project_structure=project_structure,
+            file_path=file_path,
+            code_type_tell=code_type_tell,
+            code_name=code_name,
+            code_content=code_content,
+            reference_letter=reference_letter,
+            referencer_content=referencer_content,
+            combine_ref_situation=combine_ref_situation,
+            language="English",
+            parameters_or_attribute=parameters_or_attribute,
+            has_relationship=has_relationship,
+            have_return_tell=have_return_tell,
+        )
 
         # used for debugging purposes only
         if (self.config["debug"]):
