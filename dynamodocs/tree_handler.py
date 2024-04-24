@@ -309,7 +309,7 @@ def find_all_referencer(repo_path: str, variable_name, file_path: str, line_numb
     Returns:
         list: A list of tuples containing the module path, line number, and column number of each reference.
     """
-    file_path = os.path.relpath(file_path, repo_path)
+    # file_path = os.path.relpath(file_path, repo_path)
     try:
         script = jedi.Script(path=os.path.join(repo_path, file_path))
         if in_file_only:
