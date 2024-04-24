@@ -26,9 +26,10 @@ pip install -r requirements.txt
 
 ## Configuration
 
-Before running DynamoDocs, make sure to configure the `config.ini` file according to your needs. You can set the default profile, repository path, and other options.
+Before running DynamoDocs, make sure to configure the `config.yml` file according to your needs. You can set the default profile, repository path, and other options. We have provided a
+sample `config.yml.template` file in the repository. You can rename it to `config.yml` and modify it as needed.
 
-Sample `config.ini`:
+Sample `config.yml`:
 
 ```ini
 [DEFAULT]
