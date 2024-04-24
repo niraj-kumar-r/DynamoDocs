@@ -7,7 +7,7 @@ DynamoDocs is an automatic documentation generator tool designed primarily for P
 -   **Smart Git Integration**: Dynamically connects with Git to ensure that only modified files are updated with new documentation.
 -   **Profile Selection**: Choose from different prompt profiles that can be configured in the config file. By default, it uses the 'dev' profile. Users can easily add their own profiles.
 -   **Clear Output**: Option to clear the output directory before generating the documentation, ensuring a clean build from scratch.
--   **Connect to Any LLM**: Integrated with Ollama for better portability. Can connect to any Language Model via ollama (eg. codellama, mistral, llama3 etc).
+-   **Connect to Any LLM**: Integrated with Ollama for better portability. Can connect to any Language Model via ollama (eg. codellama, mistral,llama2, llama3 etc).
 -   **Repository Path Override**: Specify a path to any repository to be documented. Can also be done via the config file.
 
 ## Installation
