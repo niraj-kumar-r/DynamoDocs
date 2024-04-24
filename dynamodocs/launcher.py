@@ -44,6 +44,8 @@ class Runner:
     def __init__(self, clear: bool = False, profile: str = "dev", repo_path: str = None):
         if repo_path is not None:
             CONFIG["repo_path"] = repo_path
+        CONFIG["project_hierarchy"] = CONFIG["project_hierarchy"] + "_" + profile
+        CONFIG["Markdown_Docs_folder"] = CONFIG["Markdown_Docs_folder"] + "_" + profile
 
         self.project_manager = ProjectManager(
             repo_path=CONFIG["repo_path"], project_hierarchy=CONFIG["project_hierarchy"]
