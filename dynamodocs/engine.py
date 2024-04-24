@@ -89,8 +89,10 @@ class ChatEngine:
             ]
             for k, reference_item in enumerate(doc_item.reference_who):
                 instance_prompt = (
-                    f"""obj: {reference_item.get_full_name()}\nDocument: \n{reference_item.md_content[-1] if len(reference_item.md_content) > 0 else 'None'}\nRaw code:```\n{
-                        reference_item.content['code_content'] if 'code_content' in reference_item.content.keys() else ''}\n```"""
+                    f"""obj: {reference_item.get_full_name()}\nDocument: \n{
+                        reference_item.md_content[-1] if len(reference_item.md_content) > 0 else 'None'}\n"""
+                    # + f"""Raw code:```\n{
+                    #     reference_item.content['code_content'] if 'code_content' in reference_item.content.keys() else ''}\n```"""
                     + "=" * 10
                 )
                 prompt.append(instance_prompt)
@@ -104,8 +106,10 @@ class ChatEngine:
             ]
             for k, referencer_item in enumerate(doc_item.who_reference_me):
                 instance_prompt = (
-                    f"""obj: {referencer_item.get_full_name()}\nDocument: \n{referencer_item.md_content[-1] if len(referencer_item.md_content) > 0 else 'None'}\nRaw code:```\n{
-                        referencer_item.content['code_content'] if 'code_content' in referencer_item.content.keys() else 'None'}\n```"""
+                    f"""obj: {referencer_item.get_full_name()}\nDocument: \n{
+                        referencer_item.md_content[-1] if len(referencer_item.md_content) > 0 else 'None'}\n"""
+                    # + f"""Raw code:```\n{referencer_item.content['code_content']
+                    #                      if 'code_content' in referencer_item.content.keys() else 'None'}\n```"""
                     + "=" * 10
                 )
                 prompt.append(instance_prompt)
