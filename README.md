@@ -14,13 +14,15 @@ DynamoDocs is an automatic documentation generator tool designed primarily for P
 
 To install DynamoDocs, clone the repository and set up a new virtual environment for it:
 
-\`\`\`bash
+```bash
+# make sure you have python3 installed with pip
+# python --version should return a version >= 3.12.2
 git clone https://github.com/niraj-kumar-r/DynamoDocs.git
 cd dynamodocs
 python -m venv .venv
 source .venv/bin/activate # On Windows, use: .venv\Scripts\activate
 pip install -r requirements.txt
-\`\`\`
+```
 
 ## Configuration
 
@@ -28,19 +30,34 @@ Before running DynamoDocs, make sure to configure the `config.ini` file accordin
 
 Sample `config.ini`:
 
-\`\`\`ini
+```ini
 [DEFAULT]
-profile = dev
-repo_path = /path/to/your/repository
-\`\`\`
+repo_path: "./"
+# can be overwritten via cli -rp flag
+project_hierarchy: .project_hierarchy
+max_thread_count: 10
+max_document_tokens: 5000
+ignore_list: []
+whitelist_path: #if whitelist_path is not none, We only generate docs on whitelist
+Markdown_Docs_folder: "markdown_docs"
+ollama_host: "http://localhost:11434"
+ollama_model: "codellama"
+debug: False
+profile_list: { "dev": "dev_prompt", "test": "high_overview" }
+```
+
+The config file needs an ollama host and model to connect to the language model.
+Make sure to have the ollama server running before running dynamodocs.
+For more information on setting up the ollama server, refer to the [Ollama Repository](https://github.com/ollama/ollama)
+By default we use the codellama model running on localhost:11434.
 
 ## Usage
 
 Run DynamoDocs using the following command:
 
-\`\`\`bash
-python -m dynamodocs -h
-\`\`\`
+```bash
+python -m dynamodocs [-h] [-p PROFILE] [-c] [-rp REPO_PATH]
+```
 
 ### Options
 
@@ -51,19 +68,19 @@ python -m dynamodocs -h
 
 ## Limitations
 
--   **Python Only**: Currently, DynamoDocs is optimized for Python Git repositories only.
+-   **Python Only**: Currently, DynamoDocs is optimized for Python Git repositories only. This is because we are using the 'jedi' library for code analysis and reference acquisition, which is Python-specific.
 
 ## Contributing
 
-We welcome contributions! Please read the [CONTRIBUTING.md](CONTRIBUTING.md) file for guidelines on how to contribute to DynamoDocs.
+We welcome contributions! If you would like to contribute to DynamoDocs, please create a pull request on the [GitHub repository](https://github.com/niraj-kumar-r/DynamoDocs.git)
 
 ## License
 
-DynamoDocs is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+DynamoDocs is licensed under the GPLv3 License. See the [LICENSE](LICENSE) file for details.
 
 ## Support
 
-For support or any questions, please create an issue on the [GitHub repository](https://github.com/your-username/dynamodocs/issues).
+For support or any questions, please create an issue on the [GitHub repository](https://github.com/niraj-kumar-r/dynamodocs/issues).
 
 ---
 
