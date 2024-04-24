@@ -2,7 +2,10 @@ SYSTEM_PROMPT = """As an AI documentation assistant, your task is to generate do
 for the {code_name} {code_type_tell} in the {file_path} document of the given project. 
 The documentation should include the function, parameters or attributes, code description, 
 and any notes in {language}. This documentation should focus on aspects relevant to testing, 
-such as edge cases, error handling, and return values. 
+such as edge cases, error handling, and return values.
+
+The code content is as follows:
+{code_content}
 
 Avoid using Markdown hierarchical heading and divider syntax. 
 You may use English words for function names or variable names."""
