@@ -2,9 +2,10 @@
 config.yml
 
 *_latest_version.py
-.project_hierarchy
+.project_hierarchy*
 system_prompt.txt
-markdown_docs
+AI_requests.txt
+markdown_docs*
 
 # vscode settings
 .vscode/
