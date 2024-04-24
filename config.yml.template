@@ -1,4 +1,5 @@
 repo_path: "./"
+# please provide absolute path of the repo
 # can be overwritten via cli -rp flag
 project_hierarchy: .project_hierarchy
 max_thread_count: 10
