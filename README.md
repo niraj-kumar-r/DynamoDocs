@@ -48,7 +48,7 @@ profile_list: { "dev": "dev_prompt", "test": "high_overview" }
 ```
 
 The config file needs an ollama host and model to connect to the language model.
-Make sure to have the ollama server running before running dynamodocs.
+Make sure to have the ollama server running before running dynamodocs(ollama serve).
 For more information on setting up the ollama server, refer to the [Ollama Repository](https://github.com/ollama/ollama)
 By default we use the codellama model running on localhost:11434.
 
